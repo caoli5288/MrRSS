@@ -22,10 +22,10 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) GetRssList() []backend.RssInfo {
-	return backend.GetRssList()
+func (a *App) GetFeedList() []backend.FeedInfo {
+	return backend.GetFeedList()
 }
 
-func (a *App) GetRssContent() []backend.RssContentInfo {
-	return backend.FilterRssContent()
+func (a *App) GetFeedContent() []backend.FeedContentFilterInfo {
+	return backend.FilterFeedContent()
 }

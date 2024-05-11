@@ -1,13 +1,12 @@
 package backend
 
-type RssInfo struct {
+type FeedInfo struct {
 	Title string
 	Link  string
 }
 
-// GetRssList returns a list of RSS feeds
-func GetRssList() []RssInfo {
-	rssList := []RssInfo{
+func GetFeedList() []FeedInfo {
+	feedList := []FeedInfo{
 		{
 			Title: "Kawabangga",
 			Link:  "https://www.kawabangga.com/feed",
@@ -20,7 +19,11 @@ func GetRssList() []RssInfo {
 			Title: "Ruanyifeng",
 			Link:  "https://www.ruanyifeng.com/blog/atom.xml",
 		},
+		{
+			Title: "Appinn",
+			Link:  "https://www.appinn.com/feed/",
+		},
 	}
 
-	return rssList
+	return feedList
 }
