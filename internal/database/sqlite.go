@@ -22,16 +22,22 @@ type DB struct {
 func NewDB(dataSourceName string) (*DB, error) {
 	// Add busy_timeout to prevent "database is locked" errors
 	// Also enable WAL mode for better concurrency
+	// Add performance optimizations: increase cache size, set synchronous=NORMAL
 	if !strings.Contains(dataSourceName, "?") {
-		dataSourceName += "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)"
+		dataSourceName += "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=cache_size(-32000)&_pragma=synchronous(NORMAL)"
 	} else {
-		dataSourceName += "&_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)"
+		dataSourceName += "&_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=cache_size(-32000)&_pragma=synchronous(NORMAL)"
 	}
 
 	db, err := sql.Open("sqlite", dataSourceName)
 	if err != nil {
 		return nil, err
 	}
+
+	// Set connection pool limits for better performance
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	return &DB{
 		DB:    db,
@@ -52,8 +58,21 @@ func (db *DB) Init() error {
 			return
 		}
 
-		// Helper function to add column safely
-		addColumn := func(table, column, definition string) {
+		// Create schema_version table for tracking migrations
+		_, _ = db.Exec(`CREATE TABLE IF NOT EXISTS schema_version (
+			version INTEGER PRIMARY KEY,
+			applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`)
+
+		// Get current schema version
+		var version int
+		_ = db.QueryRow("SELECT COALESCE(MAX(version), 0) FROM schema_version").Scan(&version)
+
+		// Helper function to add column safely (only if migration not applied)
+		addColumn := func(migrationVersion int, table, column, definition string) {
+			if version >= migrationVersion {
+				return
+			}
 			// Check if column exists
 			query := "SELECT COUNT(*) FROM pragma_table_info(?) WHERE name=?"
 			var count int
@@ -63,28 +82,36 @@ func (db *DB) Init() error {
 			}
 		}
 
-		// Migration: Add category column if not exists
-		addColumn("feeds", "category", "TEXT DEFAULT ''")
-		// Migration: Add image_url to feeds
-		addColumn("feeds", "image_url", "TEXT DEFAULT ''")
-		// Migration: Add summary and image_url to articles
-		addColumn("articles", "summary", "TEXT DEFAULT ''")
-		addColumn("articles", "image_url", "TEXT DEFAULT ''")
-		// Migration: Add translated_title to articles
-		addColumn("articles", "translated_title", "TEXT DEFAULT ''")
+		// Migration v1: Add category column if not exists
+		addColumn(1, "feeds", "category", "TEXT DEFAULT ''")
+		// Migration v2: Add image_url to feeds
+		addColumn(2, "feeds", "image_url", "TEXT DEFAULT ''")
+		// Migration v3: Add summary and image_url to articles
+		addColumn(3, "articles", "summary", "TEXT DEFAULT ''")
+		addColumn(3, "articles", "image_url", "TEXT DEFAULT ''")
+		// Migration v4: Add translated_title to articles
+		addColumn(4, "articles", "translated_title", "TEXT DEFAULT ''")
 
-		// Migration: Create settings table
-		_, _ = db.Exec(`CREATE TABLE IF NOT EXISTS settings (
-			key TEXT PRIMARY KEY,
-			value TEXT
-		)`)
-		// Default settings
-		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('update_interval', '10')`)
-		// Default settings for translation
-		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('translation_enabled', 'false')`)
-		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('target_language', 'es')`)
-		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('translation_provider', 'google')`)
-		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('deepl_api_key', '')`)
+		// Mark migrations as applied if needed
+		if version < 4 {
+			_, _ = db.Exec("INSERT OR IGNORE INTO schema_version (version) VALUES (4)")
+		}
+
+		// Migration: Create settings table (v5)
+		if version < 5 {
+			_, _ = db.Exec(`CREATE TABLE IF NOT EXISTS settings (
+				key TEXT PRIMARY KEY,
+				value TEXT
+			)`)
+			// Default settings
+			_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('update_interval', '10')`)
+			// Default settings for translation
+			_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('translation_enabled', 'false')`)
+			_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('target_language', 'es')`)
+			_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('translation_provider', 'google')`)
+			_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('deepl_api_key', '')`)
+			_, _ = db.Exec("INSERT OR IGNORE INTO schema_version (version) VALUES (5)")
+		}
 	})
 	return err
 }
@@ -119,6 +146,18 @@ func initSchema(db *sql.DB) error {
 		is_favorite BOOLEAN DEFAULT 0,
 		FOREIGN KEY(feed_id) REFERENCES feeds(id)
 	);
+
+	-- Create indexes for better query performance
+	CREATE INDEX IF NOT EXISTS idx_articles_feed_id ON articles(feed_id);
+	CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles(published_at DESC);
+	CREATE INDEX IF NOT EXISTS idx_articles_is_read ON articles(is_read);
+	CREATE INDEX IF NOT EXISTS idx_articles_is_favorite ON articles(is_favorite);
+	CREATE INDEX IF NOT EXISTS idx_feeds_category ON feeds(category);
+	
+	-- Composite indexes for common query patterns
+	CREATE INDEX IF NOT EXISTS idx_articles_feed_published ON articles(feed_id, published_at DESC);
+	CREATE INDEX IF NOT EXISTS idx_articles_read_published ON articles(is_read, published_at DESC);
+	CREATE INDEX IF NOT EXISTS idx_articles_fav_published ON articles(is_favorite, published_at DESC);
 	`
 	_, err := db.Exec(query)
 	return err
