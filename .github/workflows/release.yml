@@ -54,7 +54,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
         with:
           tag_name: ${{ steps.get_version.outputs.tag }}
           release_name: MrRSS ${{ steps.get_version.outputs.tag }}
@@ -163,7 +163,7 @@ jobs:
         if: matrix.platform == 'windows'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ./build/bin/MrRSS-${{ needs.create-release.outputs.version }}-windows-amd64-installer.exe
@@ -174,7 +174,7 @@ jobs:
         if: matrix.platform == 'linux'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ./build/bin/MrRSS-${{ needs.create-release.outputs.version }}-linux-amd64.AppImage
@@ -185,7 +185,7 @@ jobs:
         if: matrix.platform == 'darwin'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ./build/bin/MrRSS-${{ needs.create-release.outputs.version }}-darwin-universal.dmg
@@ -195,7 +195,7 @@ jobs:
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ./build/bin/MrRSS-${{ needs.create-release.outputs.version }}-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.platform == 'windows' && '.zip' || matrix.platform == 'darwin' && '.zip' || '.tar.gz' }}
