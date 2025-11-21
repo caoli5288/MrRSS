@@ -114,8 +114,12 @@ fi
 
 # Verify appimagetool is executable
 if [ ! -x "${APPIMAGETOOL}" ]; then
-    echo "Error: appimagetool is not executable"
-    chmod +x "${APPIMAGETOOL}" || exit 1
+    echo "Warning: appimagetool is not executable, attempting to fix permissions..."
+    if ! chmod +x "${APPIMAGETOOL}"; then
+        echo "Error: Failed to make appimagetool executable"
+        echo "Please check file permissions on: ${APPIMAGETOOL}"
+        exit 1
+    fi
 fi
 
 # Create AppImage
