@@ -27,6 +27,9 @@ func TestAddSubscription(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create db: %v", err)
 	}
+	if err := db.Init(); err != nil {
+		t.Fatalf("Failed to init db: %v", err)
+	}
 
 	mockFeed := &gofeed.Feed{
 		Title:       "Test Feed",
@@ -37,7 +40,7 @@ func TestAddSubscription(t *testing.T) {
 	fetcher := NewFetcher(db, translation.NewMockTranslator())
 	fetcher.fp = &MockParser{Feed: mockFeed}
 
-	err = fetcher.AddSubscription("http://test.com/rss", "Test Category")
+	err = fetcher.AddSubscription("http://test.com/rss", "Test Category", "")
 	if err != nil {
 		t.Fatalf("AddSubscription failed: %v", err)
 	}
@@ -60,6 +63,9 @@ func TestFetchFeed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create db: %v", err)
 	}
+	if err := db.Init(); err != nil {
+		t.Fatalf("Failed to init db: %v", err)
+	}
 
 	// Add a feed first
 	fetcher := NewFetcher(db, translation.NewMockTranslator())
@@ -79,7 +85,7 @@ func TestFetchFeed(t *testing.T) {
 	}
 	fetcher.fp = &MockParser{Feed: mockFeed}
 
-	err = fetcher.AddSubscription("http://test.com/rss", "Test Category")
+	err = fetcher.AddSubscription("http://test.com/rss", "Test Category", "")
 	if err != nil {
 		t.Fatalf("AddSubscription failed: %v", err)
 	}

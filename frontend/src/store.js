@@ -1,4 +1,5 @@
 import { reactive, computed } from 'vue'
+import { i18n } from './i18n.js'
 
 export const store = reactive({
     articles: [],
@@ -12,6 +13,7 @@ export const store = reactive({
     hasMore: true,
     searchQuery: '',
     theme: localStorage.getItem('theme') || 'light',
+    i18n: i18n, // Make i18n available in store
     
     // Actions
     setFilter(filter) {
@@ -121,6 +123,7 @@ export const store = reactive({
     },
 
     pollProgress() {
+        let lastCurrent = 0;
         const interval = setInterval(async () => {
             try {
                 const res = await fetch('/api/progress');
@@ -130,6 +133,12 @@ export const store = reactive({
                     total: data.total,
                     isRunning: data.is_running
                 };
+
+                // Progressive refresh: update articles whenever progress advances
+                if (data.current > lastCurrent) {
+                    lastCurrent = data.current;
+                    this.fetchArticles();
+                }
 
                 if (!data.is_running) {
                     clearInterval(interval);

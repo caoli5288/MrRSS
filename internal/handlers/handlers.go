@@ -15,29 +15,35 @@ import (
 	"MrRSS/internal/database"
 	"MrRSS/internal/feed"
 	"MrRSS/internal/opml"
+	"MrRSS/internal/translation"
 )
 
 type Handler struct {
-	DB      *database.DB
-	Fetcher *feed.Fetcher
+	DB         *database.DB
+	Fetcher    *feed.Fetcher
+	Translator translation.Translator
 }
 
-func NewHandler(db *database.DB, fetcher *feed.Fetcher) *Handler {
+func NewHandler(db *database.DB, fetcher *feed.Fetcher, translator translation.Translator) *Handler {
 	return &Handler{
-		DB:      db,
-		Fetcher: fetcher,
+		DB:         db,
+		Fetcher:    fetcher,
+		Translator: translator,
 	}
 }
 
 func (h *Handler) StartBackgroundScheduler(ctx context.Context) {
-	// Run initial cleanup
+	// Run initial cleanup only if auto_cleanup is enabled
 	go func() {
-		log.Println("Running initial article cleanup...")
-		count, err := h.DB.CleanupOldArticles()
-		if err != nil {
-			log.Printf("Error during initial cleanup: %v", err)
-		} else {
-			log.Printf("Initial cleanup: removed %d old articles", count)
+		autoCleanup, _ := h.DB.GetSetting("auto_cleanup_enabled")
+		if autoCleanup == "true" {
+			log.Println("Running initial article cleanup...")
+			count, err := h.DB.CleanupOldArticles()
+			if err != nil {
+				log.Printf("Error during initial cleanup: %v", err)
+			} else {
+				log.Printf("Initial cleanup: removed %d old articles", count)
+			}
 		}
 	}()
 	
@@ -58,13 +64,16 @@ func (h *Handler) StartBackgroundScheduler(ctx context.Context) {
 			return
 		case <-time.After(time.Duration(interval) * time.Minute):
 			h.Fetcher.FetchAll(ctx)
-			// Run cleanup after fetching new articles
+			// Run cleanup after fetching new articles only if auto_cleanup is enabled
 			go func() {
-				count, err := h.DB.CleanupOldArticles()
-				if err != nil {
-					log.Printf("Error during automatic cleanup: %v", err)
-				} else if count > 0 {
-					log.Printf("Automatic cleanup: removed %d old articles", count)
+				autoCleanup, _ := h.DB.GetSetting("auto_cleanup_enabled")
+				if autoCleanup == "true" {
+					count, err := h.DB.CleanupOldArticles()
+					if err != nil {
+						log.Printf("Error during automatic cleanup: %v", err)
+					} else if count > 0 {
+						log.Printf("Automatic cleanup: removed %d old articles", count)
+					}
 				}
 			}()
 		}
@@ -84,13 +93,14 @@ func (h *Handler) HandleAddFeed(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		URL      string `json:"url"`
 		Category string `json:"category"`
+		Title    string `json:"title"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := h.Fetcher.AddSubscription(req.URL, req.Category); err != nil {
+	if err := h.Fetcher.AddSubscription(req.URL, req.Category, req.Title); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -265,12 +275,16 @@ func (h *Handler) HandleSettings(w http.ResponseWriter, r *http.Request) {
 		targetLang, _ := h.DB.GetSetting("target_language")
 		provider, _ := h.DB.GetSetting("translation_provider")
 		apiKey, _ := h.DB.GetSetting("deepl_api_key")
+		autoCleanup, _ := h.DB.GetSetting("auto_cleanup_enabled")
+		language, _ := h.DB.GetSetting("language")
 		json.NewEncoder(w).Encode(map[string]string{
-			"update_interval":      interval,
-			"translation_enabled":  translationEnabled,
-			"target_language":      targetLang,
-			"translation_provider": provider,
-			"deepl_api_key":        apiKey,
+			"update_interval":       interval,
+			"translation_enabled":   translationEnabled,
+			"target_language":       targetLang,
+			"translation_provider":  provider,
+			"deepl_api_key":         apiKey,
+			"auto_cleanup_enabled":  autoCleanup,
+			"language":              language,
 		})
 	} else if r.Method == http.MethodPost {
 		var req struct {
@@ -279,6 +293,8 @@ func (h *Handler) HandleSettings(w http.ResponseWriter, r *http.Request) {
 			TargetLanguage      string `json:"target_language"`
 			TranslationProvider string `json:"translation_provider"`
 			DeepLAPIKey         string `json:"deepl_api_key"`
+			AutoCleanupEnabled  string `json:"auto_cleanup_enabled"`
+			Language            string `json:"language"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -298,6 +314,14 @@ func (h *Handler) HandleSettings(w http.ResponseWriter, r *http.Request) {
 		}
 		// Always update API key as it might be cleared
 		h.DB.SetSetting("deepl_api_key", req.DeepLAPIKey)
+		
+		if req.AutoCleanupEnabled != "" {
+			h.DB.SetSetting("auto_cleanup_enabled", req.AutoCleanupEnabled)
+		}
+		
+		if req.Language != "" {
+			h.DB.SetSetting("language", req.Language)
+		}
 
 		w.WriteHeader(http.StatusOK)
 	}
@@ -319,5 +343,47 @@ func (h *Handler) HandleCleanupArticles(w http.ResponseWriter, r *http.Request) 
 	log.Printf("Cleaned up %d articles", count)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"deleted": count,
+	})
+}
+
+func (h *Handler) HandleTranslateArticle(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	
+	var req struct {
+		ArticleID    int64  `json:"article_id"`
+		Title        string `json:"title"`
+		TargetLang   string `json:"target_language"`
+	}
+	
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	
+	if req.Title == "" || req.TargetLang == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
+		return
+	}
+	
+	// Translate the title
+	translatedTitle, err := h.Translator.Translate(req.Title, req.TargetLang)
+	if err != nil {
+		log.Printf("Error translating article %d: %v", req.ArticleID, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	// Update the article with the translated title
+	if err := h.DB.UpdateArticleTranslation(req.ArticleID, translatedTitle); err != nil {
+		log.Printf("Error updating article translation: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
+	json.NewEncoder(w).Encode(map[string]string{
+		"translated_title": translatedTitle,
 	})
 }

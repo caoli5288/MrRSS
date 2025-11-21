@@ -1,6 +1,6 @@
 <script setup>
 import { store } from '../store.js';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps(['isOpen']);
 const emit = defineEmits(['toggle']);
@@ -8,8 +8,9 @@ const emit = defineEmits(['toggle']);
 const tree = computed(() => {
     const t = {};
     const uncategorized = [];
+    const categories = new Set();
     
-    if (!store.feeds) return { tree: {}, uncategorized: [] };
+    if (!store.feeds) return { tree: {}, uncategorized: [], categories };
 
     store.feeds.forEach(feed => {
         if (feed.category) {
@@ -21,6 +22,7 @@ const tree = computed(() => {
                 }
                 if (index === parts.length - 1) {
                     currentLevel[part]._feeds.push(feed);
+                    categories.add(feed.category);
                 } else {
                     currentLevel = currentLevel[part]._children;
                 }
@@ -29,10 +31,24 @@ const tree = computed(() => {
             uncategorized.push(feed);
         }
     });
-    return { tree: t, uncategorized };
+    if (uncategorized.length > 0) {
+        categories.add('uncategorized');
+    }
+    return { tree: t, uncategorized, categories };
 });
 
 const openCategories = ref(new Set());
+
+// Auto-expand all categories by default when they are first loaded
+watch(() => tree.value.categories, (newCategories) => {
+    if (newCategories) {
+        newCategories.forEach(cat => {
+            if (!openCategories.value.has(cat)) {
+                openCategories.value.add(cat);
+            }
+        });
+    }
+}, { immediate: true });
 
 function toggleCategory(path) {
     if (openCategories.value.has(path)) {
@@ -65,8 +81,8 @@ function onFeedContextMenu(e, feed) {
             x: e.clientX,
             y: e.clientY,
             items: [
-                { label: 'Unsubscribe', action: 'delete', icon: 'ph-trash' },
-                { label: 'Edit Subscription', action: 'edit', icon: 'ph-pencil' }
+                { label: store.i18n.t('unsubscribe'), action: 'delete', icon: 'ph-trash', danger: true },
+                { label: store.i18n.t('editSubscription'), action: 'edit', icon: 'ph-pencil' }
             ],
             data: feed,
             callback: handleFeedAction
@@ -76,9 +92,17 @@ function onFeedContextMenu(e, feed) {
 
 async function handleFeedAction(action, feed) {
     if (action === 'delete') {
-        if (confirm(`Unsubscribe from ${feed.title}?`)) {
+        const confirmed = await window.showConfirm({
+            title: 'Unsubscribe',
+            message: `Are you sure you want to unsubscribe from ${feed.title}?`,
+            confirmText: 'Unsubscribe',
+            cancelText: 'Cancel',
+            isDanger: true
+        });
+        if (confirmed) {
             await fetch(`/api/feeds/delete?id=${feed.id}`, { method: 'POST' });
             store.fetchFeeds();
+            window.showToast('Successfully unsubscribed', 'success');
         }
     } else if (action === 'edit') {
         window.dispatchEvent(new CustomEvent('show-edit-feed', { detail: feed }));
@@ -93,7 +117,7 @@ function onCategoryContextMenu(e, categoryName) {
             x: e.clientX,
             y: e.clientY,
             items: [
-                { label: 'Rename Category', action: 'rename', icon: 'ph-pencil' }
+                { label: store.i18n.t('renameCategory'), action: 'rename', icon: 'ph-pencil' }
             ],
             data: categoryName,
             callback: handleCategoryAction
@@ -144,19 +168,19 @@ async function handleCategoryAction(action, categoryName) {
     <aside :class="['sidebar flex flex-col bg-bg-secondary border-r border-border h-full transition-transform duration-300 absolute z-20 md:relative md:translate-x-0', isOpen ? 'translate-x-0' : '-translate-x-full']">
         <div class="p-5 border-b border-border flex justify-between items-center">
             <h2 class="m-0 text-lg font-bold flex items-center gap-2 text-accent">
-                <img src="/assets/logo.svg" alt="Logo" class="h-7 w-auto" /> MrRSS
+                <img src="/assets/logo.svg" alt="Logo" class="h-7 w-auto" /> {{ store.i18n.t('appName') }}
             </h2>
         </div>
 
         <nav class="p-3 space-y-1">
             <button @click="store.setFilter('all')" :class="['nav-item', store.currentFilter === 'all' ? 'active' : '']">
-                <i class="ph ph-list-dashes"></i> All Articles
+                <i class="ph ph-list-dashes"></i> {{ store.i18n.t('allArticles') }}
             </button>
             <button @click="store.setFilter('unread')" :class="['nav-item', store.currentFilter === 'unread' ? 'active' : '']">
-                <i class="ph ph-circle"></i> Unread
+                <i class="ph ph-circle"></i> {{ store.i18n.t('unread') }}
             </button>
             <button @click="store.setFilter('favorites')" :class="['nav-item', store.currentFilter === 'favorites' ? 'active' : '']">
-                <i class="ph ph-star"></i> Favorites
+                <i class="ph ph-star"></i> {{ store.i18n.t('favorites') }}
             </button>
         </nav>
 
@@ -191,7 +215,7 @@ async function handleCategoryAction(action, categoryName) {
              <div v-if="tree.uncategorized.length > 0" class="mb-1">
                 <div class="category-header" @click="toggleCategory('uncategorized')">
                      <span class="flex-1 flex items-center gap-2">
-                        <i class="ph ph-folder-dashed"></i> Uncategorized
+                        <i class="ph ph-folder-dashed"></i> {{ store.i18n.t('uncategorized') }}
                     </span>
                     <i class="ph ph-caret-down p-1 cursor-pointer transition-transform" 
                        :class="{ 'rotate-180': isCategoryOpen('uncategorized') }"></i>
@@ -211,8 +235,8 @@ async function handleCategoryAction(action, categoryName) {
         </div>
 
         <div class="p-4 border-t border-border flex gap-2">
-            <button @click="emitShowAddFeed" class="footer-btn" title="Add Feed"><i class="ph ph-plus"></i></button>
-            <button @click="emitShowSettings" class="footer-btn" title="Settings"><i class="ph ph-gear"></i></button>
+            <button @click="emitShowAddFeed" class="footer-btn" :title="store.i18n.t('addFeed')"><i class="ph ph-plus"></i></button>
+            <button @click="emitShowSettings" class="footer-btn" :title="store.i18n.t('settings')"><i class="ph ph-gear"></i></button>
         </div>
     </aside>
     <!-- Overlay for mobile -->
