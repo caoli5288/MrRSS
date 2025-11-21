@@ -1,4 +1,5 @@
 import { reactive, computed } from 'vue'
+import { i18n } from './i18n.js'
 
 export const store = reactive({
     articles: [],
@@ -12,6 +13,7 @@ export const store = reactive({
     hasMore: true,
     searchQuery: '',
     theme: localStorage.getItem('theme') || 'light',
+    i18n: i18n, // Make i18n available in store
     
     // Actions
     setFilter(filter) {

@@ -12,7 +12,8 @@ const settings = ref({
     target_language: 'en',
     translation_provider: 'google',
     deepl_api_key: '',
-    auto_cleanup_enabled: false
+    auto_cleanup_enabled: false,
+    language: store.i18n.locale.value
 });
 
 onMounted(async () => {
@@ -25,8 +26,13 @@ onMounted(async () => {
             target_language: data.target_language || 'en',
             translation_provider: data.translation_provider || 'google',
             deepl_api_key: data.deepl_api_key || '',
-            auto_cleanup_enabled: data.auto_cleanup_enabled === 'true'
+            auto_cleanup_enabled: data.auto_cleanup_enabled === 'true',
+            language: data.language || store.i18n.locale.value
         };
+        // Apply the saved language
+        if (data.language) {
+            store.i18n.setLocale(data.language);
+        }
     } catch (e) {
         console.error(e);
     }
@@ -43,13 +49,15 @@ async function saveSettings() {
                 target_language: settings.value.target_language,
                 translation_provider: settings.value.translation_provider,
                 deepl_api_key: settings.value.deepl_api_key,
-                auto_cleanup_enabled: settings.value.auto_cleanup_enabled.toString()
+                auto_cleanup_enabled: settings.value.auto_cleanup_enabled.toString(),
+                language: settings.value.language
             })
         });
+        store.i18n.setLocale(settings.value.language);
         store.startAutoRefresh(settings.value.update_interval);
         emit('close');
     } catch (e) {
-        window.showToast('Error saving settings', 'error');
+        window.showToast(store.i18n.t('errorSavingSettings'), 'error');
     }
 }
 
@@ -207,21 +215,31 @@ async function cleanupDatabase() {
             <div class="flex-1 overflow-y-auto p-6">
                 <div v-if="activeTab === 'general'" class="space-y-6">
                     <div class="setting-group">
-                        <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider">Appearance</label>
+                        <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider">{{ store.i18n.t('appearance') }}</label>
                         <div class="setting-item">
                             <div class="flex-1">
-                                <div class="font-medium mb-1">Dark Mode</div>
-                                <div class="text-xs text-text-secondary">Switch between light and dark themes</div>
+                                <div class="font-medium mb-1">{{ store.i18n.t('darkMode') }}</div>
+                                <div class="text-xs text-text-secondary">{{ store.i18n.t('darkModeDesc') }}</div>
                             </div>
                             <input type="checkbox" :checked="store.theme === 'dark'" @change="store.toggleTheme()" class="toggle">
+                        </div>
+                        <div class="setting-item mt-3">
+                            <div class="flex-1">
+                                <div class="font-medium mb-1">{{ store.i18n.t('language') }}</div>
+                                <div class="text-xs text-text-secondary">{{ store.i18n.t('languageDesc') }}</div>
+                            </div>
+                            <select v-model="settings.language" class="input-field w-32">
+                                <option value="en">{{ store.i18n.t('english') }}</option>
+                                <option value="zh">{{ store.i18n.t('chinese') }}</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="setting-group">
-                        <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider">Updates</label>
+                        <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider">{{ store.i18n.t('updates') }}</label>
                         <div class="setting-item">
                             <div class="flex-1">
-                                <div class="font-medium mb-1">Auto-update Interval</div>
+                                <div class="font-medium mb-1">{{ store.i18n.t('autoUpdateInterval') }}</div>
                                 <div class="text-xs text-text-secondary">How often to check for new articles (in minutes)</div>
                             </div>
                             <input type="number" v-model="settings.update_interval" min="1" class="input-field w-20 text-center">

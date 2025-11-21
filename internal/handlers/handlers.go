@@ -275,6 +275,7 @@ func (h *Handler) HandleSettings(w http.ResponseWriter, r *http.Request) {
 		provider, _ := h.DB.GetSetting("translation_provider")
 		apiKey, _ := h.DB.GetSetting("deepl_api_key")
 		autoCleanup, _ := h.DB.GetSetting("auto_cleanup_enabled")
+		language, _ := h.DB.GetSetting("language")
 		json.NewEncoder(w).Encode(map[string]string{
 			"update_interval":       interval,
 			"translation_enabled":   translationEnabled,
@@ -282,6 +283,7 @@ func (h *Handler) HandleSettings(w http.ResponseWriter, r *http.Request) {
 			"translation_provider":  provider,
 			"deepl_api_key":         apiKey,
 			"auto_cleanup_enabled":  autoCleanup,
+			"language":              language,
 		})
 	} else if r.Method == http.MethodPost {
 		var req struct {
@@ -291,6 +293,7 @@ func (h *Handler) HandleSettings(w http.ResponseWriter, r *http.Request) {
 			TranslationProvider string `json:"translation_provider"`
 			DeepLAPIKey         string `json:"deepl_api_key"`
 			AutoCleanupEnabled  string `json:"auto_cleanup_enabled"`
+			Language            string `json:"language"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -313,6 +316,10 @@ func (h *Handler) HandleSettings(w http.ResponseWriter, r *http.Request) {
 		
 		if req.AutoCleanupEnabled != "" {
 			h.DB.SetSetting("auto_cleanup_enabled", req.AutoCleanupEnabled)
+		}
+		
+		if req.Language != "" {
+			h.DB.SetSetting("language", req.Language)
 		}
 
 		w.WriteHeader(http.StatusOK)

@@ -71,6 +71,7 @@ func (db *DB) Init() error {
 		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('translation_provider', 'google')`)
 		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('deepl_api_key', '')`)
 		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('auto_cleanup_enabled', 'false')`)
+		_, _ = db.Exec(`INSERT OR IGNORE INTO settings (key, value) VALUES ('language', 'en')`)
 	})
 	return err
 }
