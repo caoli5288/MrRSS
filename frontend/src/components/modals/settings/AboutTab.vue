@@ -11,7 +11,7 @@ const props = defineProps({
     installingUpdate: { type: Boolean, default: false }
 });
 
-const appVersion = ref('1.1.2');
+const appVersion = ref('1.1.3');
 
 onMounted(async () => {
     // Fetch current version from API
