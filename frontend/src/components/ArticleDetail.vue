@@ -196,9 +196,23 @@ onBeforeUnmount(() => {
                     </div>
                     
                     <!-- Loading state with proper background -->
-                    <div v-if="isLoadingContent" class="text-center text-text-secondary py-8 bg-bg-primary">
-                        <i class="ph ph-spinner ph-spin text-5xl mb-3"></i>
-                        <p>{{ store.i18n.locale.value === 'zh' ? '加载内容中...' : 'Loading content...' }}</p>
+                    <div v-if="isLoadingContent" class="flex flex-col items-center justify-center py-16 bg-bg-primary">
+                        <div class="relative mb-6">
+                            <!-- Outer pulsing ring -->
+                            <div class="absolute inset-0 rounded-full border-4 border-accent animate-ping opacity-20"></div>
+                            <!-- Middle spinning ring -->
+                            <div class="absolute inset-0 rounded-full border-4 border-t-accent border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                            <!-- Inner icon -->
+                            <div class="relative bg-bg-secondary rounded-full p-6">
+                                <i class="ph ph-article text-5xl text-accent"></i>
+                            </div>
+                        </div>
+                        <p class="text-lg font-medium text-text-primary mb-2">
+                            {{ store.i18n.locale.value === 'zh' ? '加载内容中' : 'Loading content' }}
+                        </p>
+                        <p class="text-sm text-text-secondary">
+                            {{ store.i18n.locale.value === 'zh' ? '正在从 RSS 源获取文章内容...' : 'Fetching article content from RSS feed...' }}
+                        </p>
                     </div>
                     
                     <!-- Content display -->
