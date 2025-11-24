@@ -46,6 +46,20 @@ export const translations = {
         selectArticle: 'Select an article to start reading',
         showOriginal: 'Show Original Webpage',
         openWebsite: 'Open Website',
+        discoverBlogs: 'Discover Blogs',
+        
+        // Blog Discovery
+        fromFeed: 'From Feed',
+        discovering: 'Discovering blogs...',
+        noFriendLinksFound: 'No friend links found on this blog',
+        discoveryFailed: 'Discovery failed',
+        foundBlogs: 'Found {count} blogs',
+        deselectAll: 'Deselect All',
+        recentArticles: 'Recent Articles',
+        startDiscovery: 'Click Discover to find blogs',
+        subscribeSelected: 'Subscribe Selected',
+        blogsSubscribedSuccess: '{count} blogs subscribed successfully',
+        errorSubscribingBlogs: 'Error subscribing to blogs',
         
         // Settings Modal
         settingsTitle: 'Settings',
@@ -245,6 +259,20 @@ export const translations = {
         selectArticle: '选择一篇文章开始阅读',
         showOriginal: '显示原网页',
         openWebsite: '打开网站',
+        discoverBlogs: '发现博客',
+        
+        // Blog Discovery
+        fromFeed: '来自订阅源',
+        discovering: '正在发现博客...',
+        noFriendLinksFound: '此博客未找到友链',
+        discoveryFailed: '发现失败',
+        foundBlogs: '找到 {count} 个博客',
+        deselectAll: '取消全选',
+        recentArticles: '最近文章',
+        startDiscovery: '点击发现按钮以查找博客',
+        subscribeSelected: '订阅选中',
+        blogsSubscribedSuccess: '成功订阅 {count} 个博客',
+        errorSubscribingBlogs: '订阅博客时出错',
         
         // Settings Modal
         settingsTitle: '设置',

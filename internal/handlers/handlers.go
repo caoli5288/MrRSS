@@ -5,6 +5,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"time"
 
 	"MrRSS/internal/database"
+	"MrRSS/internal/discovery"
 	"MrRSS/internal/feed"
 	"MrRSS/internal/models"
 	"MrRSS/internal/opml"
@@ -26,16 +28,18 @@ import (
 )
 
 type Handler struct {
-	DB         *database.DB
-	Fetcher    *feed.Fetcher
-	Translator translation.Translator
+	DB            *database.DB
+	Fetcher       *feed.Fetcher
+	Translator    translation.Translator
+	DiscoveryService *discovery.Service
 }
 
 func NewHandler(db *database.DB, fetcher *feed.Fetcher, translator translation.Translator) *Handler {
 	return &Handler{
-		DB:         db,
-		Fetcher:    fetcher,
-		Translator: translator,
+		DB:               db,
+		Fetcher:          fetcher,
+		Translator:       translator,
+		DiscoveryService: discovery.NewService(),
 	}
 }
 
@@ -1026,4 +1030,56 @@ func (h *Handler) HandleInstallUpdate(w http.ResponseWriter, r *http.Request) {
 		// which will properly clean up resources. For now, we use os.Exit.
 		os.Exit(0)
 	}()
+}
+
+// HandleDiscoverBlogs discovers blogs from a feed's friend links
+func (h *Handler) HandleDiscoverBlogs(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		FeedID int64 `json:"feed_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Get the feed to discover from
+	feeds, err := h.DB.GetFeeds()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var targetFeed *models.Feed
+	for i := range feeds {
+		if feeds[i].ID == req.FeedID {
+			targetFeed = &feeds[i]
+			break
+		}
+	}
+
+	if targetFeed == nil {
+		http.Error(w, "Feed not found", http.StatusNotFound)
+		return
+	}
+
+	// Discover blogs with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	log.Printf("Starting blog discovery for feed: %s (%s)", targetFeed.Title, targetFeed.URL)
+	discovered, err := h.DiscoveryService.DiscoverFromFeed(ctx, targetFeed.URL)
+	if err != nil {
+		log.Printf("Error discovering blogs: %v", err)
+		http.Error(w, fmt.Sprintf("Failed to discover blogs: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Discovered %d blogs", len(discovered))
+	json.NewEncoder(w).Encode(discovered)
 }
