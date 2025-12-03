@@ -103,10 +103,19 @@ function handleDiscoverAll() {
 .btn-danger {
   @apply bg-red-50 border border-red-300 text-red-600 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md cursor-pointer flex items-center gap-1.5 sm:gap-2 font-semibold hover:bg-red-100 transition-colors;
 }
-:global(.dark-mode) .btn-danger {
-  @apply bg-red-900/20 border-red-400 text-red-400 hover:bg-red-900/30;
-}
 .btn-danger:disabled {
   @apply opacity-50 cursor-not-allowed;
+}
+</style>
+
+<style>
+/* Dark mode styles need to be global to work with body.dark-mode */
+.dark-mode .btn-danger {
+  background-color: rgba(127, 29, 29, 0.2) !important;
+  border-color: #f87171 !important;
+  color: #f87171 !important;
+}
+.dark-mode .btn-danger:hover {
+  background-color: rgba(127, 29, 29, 0.3) !important;
 }
 </style>
