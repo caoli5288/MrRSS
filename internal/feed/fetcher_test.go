@@ -338,15 +338,15 @@ func TestFetchFeedWithImageEnclosure(t *testing.T) {
 	if len(articles) != 2 {
 		t.Errorf("Expected 2 articles, got %d", len(articles))
 	}
-	
+
 	// Check PNG image extraction
-	if articles[1].ImageURL != "https://test.com/images/image1.png" {
-		t.Errorf("Expected PNG image URL, got '%s'", articles[1].ImageURL)
+	if articles[0].ImageURL != "https://test.com/images/image1.png" {
+		t.Errorf("Expected PNG image URL, got '%s'", articles[0].ImageURL)
 	}
-	
+
 	// Check JPEG image extraction
-	if articles[0].ImageURL != "https://test.com/images/image2.jpg" {
-		t.Errorf("Expected JPEG image URL, got '%s'", articles[0].ImageURL)
+	if articles[1].ImageURL != "https://test.com/images/image2.jpg" {
+		t.Errorf("Expected JPEG image URL, got '%s'", articles[1].ImageURL)
 	}
 }
 
@@ -407,13 +407,13 @@ func TestFetchFeedWithMultipleEnclosures(t *testing.T) {
 	if len(articles) != 1 {
 		t.Errorf("Expected 1 article, got %d", len(articles))
 	}
-	
+
 	// Should have both image and audio
 	expectedImageURL := "https://test.com/images/cover.jpg"
 	if articles[0].ImageURL != expectedImageURL {
 		t.Errorf("Expected image URL '%s', got '%s'", expectedImageURL, articles[0].ImageURL)
 	}
-	
+
 	expectedAudioURL := "https://test.com/audio/episode1.mp3"
 	if articles[0].AudioURL != expectedAudioURL {
 		t.Errorf("Expected audio URL '%s', got '%s'", expectedAudioURL, articles[0].AudioURL)

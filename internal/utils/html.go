@@ -12,10 +12,10 @@ const selfClosingTags = "img|br|hr|input|meta|link"
 var (
 	// Matches malformed opening tags like <p-->, <div-->
 	malformedTagRegex = regexp.MustCompile(`<([a-zA-Z][a-zA-Z0-9]*)\s*--+>`)
-	
+
 	// Matches malformed self-closing tags with attributes like <img src="..." -->
 	malformedSelfClosingWithAttrs = regexp.MustCompile(`<(` + selfClosingTags + `)\s+([^<>]+?)--+>`)
-	
+
 	// Matches malformed self-closing tags without attributes like <br-->
 	malformedSelfClosingNoAttrs = regexp.MustCompile(`<(` + selfClosingTags + `)\s*--+>`)
 )
@@ -36,7 +36,7 @@ func CleanHTML(html string) string {
 	// Pattern 1: Tags with attributes (e.g., <img src="..." -->)
 	// Use [^<>]+ to avoid matching angle brackets and nested tags
 	html = malformedSelfClosingWithAttrs.ReplaceAllString(html, "<$1 $2>")
-	
+
 	// Pattern 2: Tags without attributes (e.g., <br-->)
 	html = malformedSelfClosingNoAttrs.ReplaceAllString(html, "<$1>")
 
