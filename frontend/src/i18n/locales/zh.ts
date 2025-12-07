@@ -41,6 +41,10 @@ const zh: TranslationMessages = {
   imageViewerHelpExtended: '使用鼠标滚轮或 +/- 键缩放 • 拖动移动 • Ctrl+S 保存 • ESC 关闭',
   downloadImage: '下载图片',
   viewImage: '查看图片',
+  podcastAudio: '播客音频',
+  play: '播放',
+  pause: '暂停',
+  downloadAudio: '下载音频文件',
 
   // Context Menu
   unsubscribe: '取消订阅',

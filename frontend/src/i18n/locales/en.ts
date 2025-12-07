@@ -42,6 +42,10 @@ const en: TranslationMessages = {
     'Use mouse wheel or +/- keys to zoom • Drag to move • Ctrl+S to save • ESC to close',
   downloadImage: 'Download Image',
   viewImage: 'View Image',
+  podcastAudio: 'Podcast Audio',
+  play: 'Play',
+  pause: 'Pause',
+  downloadAudio: 'Download Audio File',
 
   // Context Menu
   unsubscribe: 'Unsubscribe',
