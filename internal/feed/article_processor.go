@@ -31,19 +31,6 @@ func (f *Fetcher) processArticles(feed models.Feed, items []*gofeed.Item) []*mod
 		mediaTitle := extractMediaTitle(item)
 		mediaDescription := extractMediaDescription(item)
 
-		// Use media:title if available and more complete than item.Title
-		title := item.Title
-		if mediaTitle != "" && len(mediaTitle) > len(title) {
-			title = mediaTitle
-		}
-		if title == "" {
-			// Fallback to generating from content
-			title = generateTitleFromContent(item.Content)
-			if title == "Untitled Article" {
-				title = generateTitleFromContent(item.Description)
-			}
-		}
-
 		// Extract content from RSS item (prefer media:description, then Content, then Description)
 		content := mediaDescription
 		if content == "" {
@@ -51,6 +38,16 @@ func (f *Fetcher) processArticles(feed models.Feed, items []*gofeed.Item) []*mod
 		}
 		if content == "" {
 			content = item.Description
+		}
+
+		// Determine title: prefer media:title if available, then item.Title, then generate from content
+		title := item.Title
+		if mediaTitle != "" {
+			title = mediaTitle
+		}
+		if title == "" {
+			// Fallback to generating from the processed content
+			title = generateTitleFromContent(content)
 		}
 
 		translatedTitle := ""
