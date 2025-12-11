@@ -15,6 +15,7 @@ var defaultsJSON []byte
 // Defaults holds all default settings values
 type Defaults struct {
 	UpdateInterval        int    `json:"update_interval"`
+	RefreshMode           string `json:"refresh_mode"`
 	Language              string `json:"language"`
 	Theme                 string `json:"theme"`
 	DefaultViewMode       string `json:"default_view_mode"`
@@ -43,6 +44,12 @@ type Defaults struct {
 	MediaCacheEnabled     bool   `json:"media_cache_enabled"`
 	MediaCacheMaxSizeMB   int    `json:"media_cache_max_size_mb"`
 	MediaCacheMaxAgeDays  int    `json:"media_cache_max_age_days"`
+	ProxyEnabled          bool   `json:"proxy_enabled"`
+	ProxyType             string `json:"proxy_type"`
+	ProxyHost             string `json:"proxy_host"`
+	ProxyPort             string `json:"proxy_port"`
+	ProxyUsername         string `json:"proxy_username"`
+	ProxyPassword         string `json:"proxy_password"`
 	Shortcuts             string `json:"shortcuts"`
 	Rules                 string `json:"rules"`
 	LastArticleUpdate     string `json:"last_article_update"`
@@ -66,6 +73,8 @@ func GetString(key string) string {
 	switch key {
 	case "update_interval":
 		return strconv.Itoa(defaults.UpdateInterval)
+	case "refresh_mode":
+		return defaults.RefreshMode
 	case "language":
 		return defaults.Language
 	case "theme":
@@ -122,6 +131,18 @@ func GetString(key string) string {
 		return strconv.Itoa(defaults.MediaCacheMaxSizeMB)
 	case "media_cache_max_age_days":
 		return strconv.Itoa(defaults.MediaCacheMaxAgeDays)
+	case "proxy_enabled":
+		return strconv.FormatBool(defaults.ProxyEnabled)
+	case "proxy_type":
+		return defaults.ProxyType
+	case "proxy_host":
+		return defaults.ProxyHost
+	case "proxy_port":
+		return defaults.ProxyPort
+	case "proxy_username":
+		return defaults.ProxyUsername
+	case "proxy_password":
+		return defaults.ProxyPassword
 	case "shortcuts":
 		return defaults.Shortcuts
 	case "rules":

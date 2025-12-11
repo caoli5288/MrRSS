@@ -1,5 +1,6 @@
 {
   "update_interval": 30,
+  "refresh_mode": "fixed",
   "language": "en-US",
   "theme": "auto",
   "default_view_mode": "rendered",
@@ -28,6 +29,12 @@
   "media_cache_enabled": true,
   "media_cache_max_size_mb": 100,
   "media_cache_max_age_days": 7,
+  "proxy_enabled": false,
+  "proxy_type": "https",
+  "proxy_host": "127.0.0.1",
+  "proxy_port": "7890",
+  "proxy_username": "",
+  "proxy_password": "",
   "shortcuts": "",
   "rules": "",
   "last_article_update": ""

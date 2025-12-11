@@ -418,6 +418,9 @@ export interface TranslationMessages {
   sortByCategory: string;
   hideFromTimeline: string;
   hideFromTimelineDesc: string;
+  advancedSettings: string;
+  showAdvancedSettings: string;
+  hideAdvancedSettings: string;
 }
 
 export type SupportedLocale = 'en-US' | 'zh-CN';

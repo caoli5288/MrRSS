@@ -9,11 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Media cache system to bypass anti-hotlinking restrictions and cache images/videos locally.
-- Media proxy endpoint (`/api/media/proxy`) that handles downloading and caching media with proper referrer headers.
-- Media cache settings in Database Settings tab with controls for cache size and age limits.
-- Automatic media cache cleanup integrated with the background scheduler.
-- Manual media cache cleanup button in settings.
+- Supported media cache system to bypass anti-hotlinking restrictions and cache images/videos locally.
+- Supported proxy settings for network requests.
+- Supported intelligent refresh scheduling based on feed update frequency.
+- Supported customizing proxy and refresh settings per feed.
 
 ## [1.2.12] - 2025-12-10
 
