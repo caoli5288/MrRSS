@@ -88,11 +88,13 @@ export function clearMediaCacheEnabledCache(): void {
  * @param html HTML content
  * @param referer Optional referer URL
  * @returns HTML with proxied image URLs
+ * @note Unquoted src attributes are supported but must not contain spaces (per HTML spec)
  */
 export function proxyImagesInHtml(html: string, referer?: string): string {
   if (!html) return html;
 
   // Replace img src attributes - handles double quotes, single quotes, and unquoted values
+  // Note: Unquoted values cannot contain spaces per HTML specification
   return html.replace(/<img([^>]+)src\s*=\s*(['"]?)([^"'\s>]+)\2/gi, (match, attrs, quote, src) => {
     const proxiedUrl = getProxiedMediaUrl(src, referer);
     // Always output with double quotes for consistency

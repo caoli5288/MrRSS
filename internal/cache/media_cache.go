@@ -51,7 +51,16 @@ func (mc *MediaCache) findCachedFile(url string) (string, bool) {
 		}
 		return "", false
 	}
-	// If multiple matches, pick the first (shouldn't happen unless cache is dirty)
+	// If multiple matches found, log warning and clean up duplicates
+	if len(matches) > 1 {
+		fmt.Printf("Warning: Found %d cached files for URL hash %s, cleaning up duplicates\n", len(matches), hash)
+		// Keep the most recent file, remove others
+		for i := 1; i < len(matches); i++ {
+			if err := os.Remove(matches[i]); err != nil {
+				fmt.Printf("Failed to remove duplicate cache file %s: %v\n", matches[i], err)
+			}
+		}
+	}
 	return matches[0], true
 }
 
