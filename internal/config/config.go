@@ -41,6 +41,9 @@ type Defaults struct {
 	AutoCleanupEnabled    bool   `json:"auto_cleanup_enabled"`
 	MaxCacheSizeMB        int    `json:"max_cache_size_mb"`
 	MaxArticleAgeDays     int    `json:"max_article_age_days"`
+	MediaCacheEnabled     bool   `json:"media_cache_enabled"`
+	MediaCacheMaxSizeMB   int    `json:"media_cache_max_size_mb"`
+	MediaCacheMaxAgeDays  int    `json:"media_cache_max_age_days"`
 	ProxyEnabled          bool   `json:"proxy_enabled"`
 	ProxyType             string `json:"proxy_type"`
 	ProxyHost             string `json:"proxy_host"`
@@ -122,6 +125,12 @@ func GetString(key string) string {
 		return strconv.Itoa(defaults.MaxCacheSizeMB)
 	case "max_article_age_days":
 		return strconv.Itoa(defaults.MaxArticleAgeDays)
+	case "media_cache_enabled":
+		return strconv.FormatBool(defaults.MediaCacheEnabled)
+	case "media_cache_max_size_mb":
+		return strconv.Itoa(defaults.MediaCacheMaxSizeMB)
+	case "media_cache_max_age_days":
+		return strconv.Itoa(defaults.MediaCacheMaxAgeDays)
 	case "proxy_enabled":
 		return strconv.FormatBool(defaults.ProxyEnabled)
 	case "proxy_type":

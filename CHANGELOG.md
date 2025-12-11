@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Supported media cache system to bypass anti-hotlinking restrictions and cache images/videos locally.
 - Supported proxy settings for network requests.
 - Supported intelligent refresh scheduling based on feed update frequency.
 - Supported customizing proxy and refresh settings per feed.
