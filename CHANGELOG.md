@@ -5,7 +5,7 @@ All notable changes to MrRSS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.14] - 2025-12-12
 
 ### Added
 
@@ -18,9 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the issue where some images wrapped in links can not be operated correctly.
 - Fixed the issue where single-line link can not be translated correctly.
 - Fixed the issue where some links can not be opened in the default browser.
-
-### Fixed
-
 - Fixed the issue where icons on MacOS were not displayed correctly.
 - Fixed the issue where the window size and position were not restored correctly.
 
