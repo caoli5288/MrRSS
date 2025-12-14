@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useAppStore } from '@/stores/app';
 import { useI18n } from 'vue-i18n';
 import type { Article } from '@/types/models';
-import { PhImage, PhHeart, PhHeartFill } from '@phosphor-icons/vue';
+import { PhImage, PhHeart } from '@phosphor-icons/vue';
 
 const store = useAppStore();
 const { t } = useI18n();
@@ -166,8 +166,11 @@ onUnmounted(() => {
               class="favorite-btn"
               @click="toggleFavorite(article, $event)"
             >
-              <PhHeartFill v-if="article.is_favorite" :size="20" class="text-red-500" />
-              <PhHeart v-else :size="20" class="text-white" />
+              <PhHeart
+                :size="20"
+                :weight="article.is_favorite ? 'fill' : 'regular'"
+                :class="article.is_favorite ? 'text-red-500' : 'text-white'"
+              />
             </button>
           </div>
         </div>
