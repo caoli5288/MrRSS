@@ -55,6 +55,12 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 		proxyPassword, _ := h.DB.GetEncryptedSetting("proxy_password")
 		googleTranslateEndpoint, _ := h.DB.GetSetting("google_translate_endpoint")
 		showArticlePreviewImages, _ := h.DB.GetSetting("show_article_preview_images")
+		networkSpeed, _ := h.DB.GetSetting("network_speed")
+		networkBandwidth, _ := h.DB.GetSetting("network_bandwidth_mbps")
+		networkLatency, _ := h.DB.GetSetting("network_latency_ms")
+		maxConcurrentRefreshes, _ := h.DB.GetSetting("max_concurrent_refreshes")
+		lastNetworkTest, _ := h.DB.GetSetting("last_network_test")
+		imageGalleryEnabled, _ := h.DB.GetSetting("image_gallery_enabled")
 		json.NewEncoder(w).Encode(map[string]string{
 			"update_interval":             interval,
 			"refresh_mode":                refreshMode,
@@ -98,6 +104,12 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			"proxy_password":              proxyPassword,
 			"google_translate_endpoint":   googleTranslateEndpoint,
 			"show_article_preview_images": showArticlePreviewImages,
+			"network_speed":               networkSpeed,
+			"network_bandwidth_mbps":      networkBandwidth,
+			"network_latency_ms":          networkLatency,
+			"max_concurrent_refreshes":    maxConcurrentRefreshes,
+			"last_network_test":           lastNetworkTest,
+			"image_gallery_enabled":       imageGalleryEnabled,
 		})
 	case http.MethodPost:
 		var req struct {
@@ -142,6 +154,12 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			ProxyPassword            string `json:"proxy_password"`
 			GoogleTranslateEndpoint  string `json:"google_translate_endpoint"`
 			ShowArticlePreviewImages string `json:"show_article_preview_images"`
+			NetworkSpeed             string `json:"network_speed"`
+			NetworkBandwidth         string `json:"network_bandwidth_mbps"`
+			NetworkLatency           string `json:"network_latency_ms"`
+			MaxConcurrentRefreshes   string `json:"max_concurrent_refreshes"`
+			LastNetworkTest          string `json:"last_network_test"`
+			ImageGalleryEnabled      string `json:"image_gallery_enabled"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -279,6 +297,30 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 
 		if req.ShowArticlePreviewImages != "" {
 			h.DB.SetSetting("show_article_preview_images", req.ShowArticlePreviewImages)
+		}
+
+		if req.NetworkSpeed != "" {
+			h.DB.SetSetting("network_speed", req.NetworkSpeed)
+		}
+
+		if req.NetworkBandwidth != "" {
+			h.DB.SetSetting("network_bandwidth_mbps", req.NetworkBandwidth)
+		}
+
+		if req.NetworkLatency != "" {
+			h.DB.SetSetting("network_latency_ms", req.NetworkLatency)
+		}
+
+		if req.MaxConcurrentRefreshes != "" {
+			h.DB.SetSetting("max_concurrent_refreshes", req.MaxConcurrentRefreshes)
+		}
+
+		if req.LastNetworkTest != "" {
+			h.DB.SetSetting("last_network_test", req.LastNetworkTest)
+		}
+
+		if req.ImageGalleryEnabled != "" {
+			h.DB.SetSetting("image_gallery_enabled", req.ImageGalleryEnabled)
 		}
 
 		if req.StartupOnBoot != "" {

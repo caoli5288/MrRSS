@@ -9,6 +9,7 @@ const en: TranslationMessages = {
   unread: 'Unread',
   favorites: 'Favorites',
   readLater: 'Read Later',
+  imageGallery: 'Image Gallery',
   uncategorized: 'Uncategorized',
   searchFeeds: 'Search feeds...',
   addFeed: 'Add Feed',
@@ -67,6 +68,7 @@ const en: TranslationMessages = {
   showOriginal: 'Show Original Webpage',
   openWebsite: 'Open Website',
   discoverFeeds: 'Discover Feeds',
+  toggleSidebar: 'Toggle Sidebar',
 
   // Feed Discovery
   fromFeed: 'From Feed',
@@ -149,6 +151,9 @@ const en: TranslationMessages = {
   showHiddenArticlesDesc: 'Display articles that have been hidden',
   showArticlePreviewImages: 'Show Preview Images',
   showArticlePreviewImagesDesc: 'Display preview images in the article list',
+  imageGalleryFeature: 'Image Gallery Feature',
+  imageGalleryEnabled: 'Enable Image Gallery',
+  imageGalleryEnabledDesc: 'Enable image waterfall mode for image-focused feeds',
   startupOnBoot: 'Start on System Boot',
   startupOnBootDesc: 'Automatically start MrRSS when your computer starts',
   closeToTray: 'Minimize to Tray on Close',
@@ -480,6 +485,9 @@ const en: TranslationMessages = {
   editRule: 'Edit Rule',
   deleteRule: 'Delete Rule',
   noRules: 'No rules defined',
+
+  // Network
+  network: 'Network',
   noRulesHint: 'Create a rule to automatically process articles',
   ruleEnabled: 'Enabled',
   ruleDisabled: 'Disabled',
@@ -533,9 +541,25 @@ const en: TranslationMessages = {
   sortByCategory: 'Category',
   hideFromTimeline: 'Hide from Timeline',
   hideFromTimelineDesc: 'Hide this feed\'s articles from "All Articles" and "Unread" views',
+  imageMode: 'Image Mode',
+  imageModeDesc: 'Display this feed in image gallery view instead of article list',
   advancedSettings: 'Advanced Settings',
   showAdvancedSettings: 'Show Advanced Settings',
   hideAdvancedSettings: 'Hide Advanced Settings',
+
+  // Network Settings
+  networkSettings: 'Network Settings',
+  networkSettingsDescription:
+    'Automatic network speed detection to optimize parallel feed refresh performance',
+  bandwidthLabel: 'Bandwidth',
+  latencyLabel: 'Latency',
+  bandwidthMbps: 'Mbps',
+  latencyMs: 'ms',
+  lastDetection: 'Last Detection',
+  reDetectNetwork: 'Re-detect',
+  detecting: 'Detecting...',
+  networkDetectionComplete: 'Network detection complete',
+  networkDetectionFailed: 'Network detection failed',
 };
 
 export default en;

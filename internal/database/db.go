@@ -76,7 +76,9 @@ func (db *DB) Init() error {
 			"media_cache_enabled", "media_cache_max_size_mb", "media_cache_max_age_days",
 			"proxy_enabled", "proxy_type", "proxy_host", "proxy_port", "proxy_username", "proxy_password",
 			"shortcuts", "rules", "startup_on_boot", "close_to_tray", "google_translate_endpoint", "show_article_preview_images",
-      "window_x", "window_y", "window_width", "window_height", "window_maximized",
+			"window_x", "window_y", "window_width", "window_height", "window_maximized",
+			"network_speed", "network_bandwidth_mbps", "network_latency_ms", "max_concurrent_refreshes", "last_network_test",
+			"image_gallery_enabled",
 		}
 		for _, key := range settingsKeys {
 			defaultVal := config.GetString(key)
@@ -105,6 +107,10 @@ func (db *DB) Init() error {
 		_, _ = db.Exec(`ALTER TABLE feeds ADD COLUMN proxy_url TEXT DEFAULT ''`)
 		_, _ = db.Exec(`ALTER TABLE feeds ADD COLUMN proxy_enabled BOOLEAN DEFAULT 0`)
 		_, _ = db.Exec(`ALTER TABLE feeds ADD COLUMN refresh_interval INTEGER DEFAULT 0`)
+
+		// Migration: Add is_image_mode column to feeds table for image gallery feature
+		// Error is ignored - if column exists, the operation fails harmlessly.
+		_, _ = db.Exec(`ALTER TABLE feeds ADD COLUMN is_image_mode BOOLEAN DEFAULT 0`)
 	})
 	return err
 }

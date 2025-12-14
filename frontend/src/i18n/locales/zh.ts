@@ -9,6 +9,7 @@ const zh: TranslationMessages = {
   unread: '未读',
   favorites: '收藏',
   readLater: '稍后阅读',
+  imageGallery: '图片库',
   uncategorized: '未分类',
   searchFeeds: '搜索订阅源...',
   addFeed: '添加订阅',
@@ -65,6 +66,7 @@ const zh: TranslationMessages = {
   showOriginal: '显示原网页',
   openWebsite: '打开网站',
   discoverFeeds: '发现订阅源',
+  toggleSidebar: '切换侧边栏',
 
   // Feed Discovery
   fromFeed: '来自订阅源',
@@ -146,6 +148,9 @@ const zh: TranslationMessages = {
   showHiddenArticlesDesc: '显示已被隐藏的文章',
   showArticlePreviewImages: '显示预览图片',
   showArticlePreviewImagesDesc: '在文章列表中显示预览图片',
+  imageGalleryFeature: '图片库功能',
+  imageGalleryEnabled: '启用图片库',
+  imageGalleryEnabledDesc: '为图片类订阅源启用图片瀑布流模式',
   startupOnBoot: '开机自启动',
   startupOnBootDesc: '电脑启动时自动启动 MrRSS',
   closeToTray: '关闭时最小化到托盘',
@@ -475,6 +480,9 @@ const zh: TranslationMessages = {
   editRule: '编辑规则',
   deleteRule: '删除规则',
   noRules: '暂无规则',
+
+  // Network
+  network: '网络',
   noRulesHint: '创建规则以自动处理文章',
   ruleEnabled: '已启用',
   ruleDisabled: '已禁用',
@@ -527,9 +535,24 @@ const zh: TranslationMessages = {
   sortByCategory: '分类',
   hideFromTimeline: '从时间线隐藏',
   hideFromTimelineDesc: '在"所有文章"和"未读"视图中隐藏此订阅源的文章',
+  imageMode: '图片模式',
+  imageModeDesc: '以图片库视图而非文章列表展示此订阅源',
   advancedSettings: '高级设置',
   showAdvancedSettings: '显示高级设置',
   hideAdvancedSettings: '隐藏高级设置',
+
+  // Network Settings
+  networkSettings: '网络设置',
+  networkSettingsDescription: '自动检测网络速度以优化并行刷新订阅源的性能',
+  bandwidthLabel: '带宽',
+  latencyLabel: '延迟',
+  bandwidthMbps: '兆每秒',
+  latencyMs: '毫秒',
+  lastDetection: '上次检测',
+  reDetectNetwork: '重新检测',
+  detecting: '检测中...',
+  networkDetectionComplete: '网络检测完成',
+  networkDetectionFailed: '网络检测失败',
 };
 
 export default zh;

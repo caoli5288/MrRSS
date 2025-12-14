@@ -166,6 +166,18 @@ export function useSettingsAutoSave(settings: Ref<SettingsData> | (() => Setting
             settingsRef.value.show_article_preview_images ??
             settingsDefaults.show_article_preview_images
           ).toString(),
+          network_speed: settingsRef.value.network_speed ?? settingsDefaults.network_speed,
+          network_bandwidth_mbps:
+            settingsRef.value.network_bandwidth_mbps ?? settingsDefaults.network_bandwidth_mbps,
+          network_latency_ms:
+            settingsRef.value.network_latency_ms ?? settingsDefaults.network_latency_ms,
+          max_concurrent_refreshes:
+            settingsRef.value.max_concurrent_refreshes ?? settingsDefaults.max_concurrent_refreshes,
+          last_network_test:
+            settingsRef.value.last_network_test ?? settingsDefaults.last_network_test,
+          image_gallery_enabled: (
+            settingsRef.value.image_gallery_enabled ?? settingsDefaults.image_gallery_enabled
+          ).toString(),
         }),
       });
 
@@ -201,6 +213,15 @@ export function useSettingsAutoSave(settings: Ref<SettingsData> | (() => Setting
         new CustomEvent('show-preview-images-changed', {
           detail: {
             value: settingsRef.value.show_article_preview_images,
+          },
+        })
+      );
+
+      // Notify about image_gallery_enabled change
+      window.dispatchEvent(
+        new CustomEvent('image-gallery-setting-changed', {
+          detail: {
+            enabled: settingsRef.value.image_gallery_enabled,
           },
         })
       );
