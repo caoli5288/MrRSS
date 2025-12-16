@@ -275,14 +275,14 @@ function onFeedUpdated(): void {
   padding-top: 28px; /* Space for MacOS window controls */
 }
 
-/* MacOS window dragging support */
-.app-container.macos-padding .sidebar,
-.app-container.macos-padding .article-list-header,
-.app-container.macos-padding .article-detail-header {
+/* MacOS window dragging support - enable drag on top sections only */
+.app-container.macos-padding .sidebar > div:first-child,
+.app-container.macos-padding .article-list > div:first-child,
+.app-container.macos-padding main > div > div:first-child {
   -webkit-app-region: drag;
 }
 
-/* Make interactive elements draggable on MacOS */
+/* Prevent drag on interactive elements within draggable areas on MacOS */
 .app-container.macos-padding button,
 .app-container.macos-padding input,
 .app-container.macos-padding textarea,
@@ -290,7 +290,10 @@ function onFeedUpdated(): void {
 .app-container.macos-padding a,
 .app-container.macos-padding .resizer,
 .app-container.macos-padding [role="button"],
-.app-container.macos-padding .clickable {
+.app-container.macos-padding img[role="button"],
+.app-container.macos-padding .clickable,
+.app-container.macos-padding h2,
+.app-container.macos-padding h3 {
   -webkit-app-region: no-drag;
 }
 
