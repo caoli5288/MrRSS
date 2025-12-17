@@ -3,7 +3,7 @@
   <h1>MrRSS</h1>
   <p><strong>一个现代化的跨平台桌面 RSS 阅读器</strong></p>
 
-   [![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/WCY-dt/MrRSS/releases)
+   [![Version](https://img.shields.io/badge/version-1.3.1-blue.svg)](https://github.com/WCY-dt/MrRSS/releases)
   [![License](https://img.shields.io/badge/license-GPLv3-green.svg)](LICENSE)
    [![Go](https://img.shields.io/badge/Go-1.24+-00ADD8?logo=go)](https://go.dev/)
   [![Wails](https://img.shields.io/badge/Wails-v3%20alpha-red)](https://wails.io/)
@@ -15,7 +15,7 @@
 </div>
 
 > [!NOTE]
-> MrRSS 已升级到 **Wails v3 (alpha)**。这带来了更好的性能、内置系统托盘支持和更好的跨平台兼容性。如果您遇到任何问题，请[在 GitHub 上报告](https://github.com/WCY-dt/MrRSS/issues)。
+> 本项目为跨平台应用，在 MacOS 上的部分功能可能受限于系统权限设置。如果您遇到任何问题，请[在 GitHub 上报告](https://github.com/WCY-dt/MrRSS/issues)。
 
 ---
 
