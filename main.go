@@ -480,6 +480,9 @@ func main() {
 		})
 	}
 
+	// Track last window close attempt to handle macOS fullscreen properly
+	var lastCloseAttempt atomic.Int64
+
 	// Register hook for window closing event
 	mainWindow.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		if quitRequested.Load() {
@@ -487,21 +490,36 @@ func main() {
 		}
 
 		if shouldCloseToTray() {
-			// On macOS, exit fullscreen before hiding to prevent black screen
+			// On macOS, handle fullscreen exit gracefully
 			if runtime.GOOS == "darwin" {
-				// Check if window is fullscreen and exit if necessary
-				// Note: We don't have a direct way to check fullscreen state in Wails v3
-				// but calling Restore() will exit fullscreen if currently fullscreen
+				now := time.Now().UnixMilli()
+				last := lastCloseAttempt.Load()
+
+				// If last close was within 500ms, user clicked close twice quickly
+				// This means fullscreen exit completed, proceed with hiding
+				if last > 0 && (now-last) < 500 {
+					lastCloseAttempt.Store(0) // Reset
+					storeWindowState()
+					setupSystemTray()
+					mainWindow.Hide()
+					e.Cancel()
+					return
+				}
+
+				// First close attempt - try to exit fullscreen
+				lastCloseAttempt.Store(now)
 				mainWindow.Restore()
-				// Small delay to allow fullscreen exit to complete
-				time.Sleep(100 * time.Millisecond)
+				// Cancel this close event
+				// If window was fullscreen, user needs to click close again
+				// If not fullscreen, Restore() does nothing and next close will proceed
+				e.Cancel()
+				return
 			}
+
+			// Non-macOS platforms: directly hide to tray
 			storeWindowState()
-			// Setup tray if not already
 			setupSystemTray()
-			// Hide the window instead of closing
 			mainWindow.Hide()
-			// Cancel the close event
 			e.Cancel()
 		}
 	})

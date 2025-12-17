@@ -3,7 +3,7 @@
   <h1>MrRSS</h1>
   <p><strong>A Modern, Cross-Platform Desktop RSS Reader</strong></p>
 
-   [![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/WCY-dt/MrRSS/releases)
+   [![Version](https://img.shields.io/badge/version-1.3.1-blue.svg)](https://github.com/WCY-dt/MrRSS/releases)
   [![License](https://img.shields.io/badge/license-GPLv3-green.svg)](LICENSE)
    [![Go](https://img.shields.io/badge/Go-1.24+-00ADD8?logo=go)](https://go.dev/)
   [![Wails](https://img.shields.io/badge/Wails-v3%20alpha-red)](https://wails.io/)
@@ -15,7 +15,7 @@
 </div>
 
 > [!NOTE]
-> MrRSS has been upgraded to **Wails v3 (alpha)**. This brings improved performance, built-in system tray support, and better cross-platform compatibility. If you encounter any issues, please [report them on GitHub](https://github.com/WCY-dt/MrRSS/issues).
+> This project is a cross-platform application, and some features on MacOS may be limited due to system permission settings. If you encounter any issues, please [report them on GitHub](https://github.com/WCY-dt/MrRSS/issues).
 
 ---
 
