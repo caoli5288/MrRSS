@@ -9,12 +9,15 @@ export interface SettingsData {
   target_language: string;
   translation_provider: string;
   deepl_api_key: string;
+  deepl_endpoint: string;
   baidu_app_id: string;
   baidu_secret_key: string;
   ai_api_key: string;
   ai_endpoint: string;
   ai_model: string;
   ai_system_prompt: string;
+  ai_usage_tokens: string;
+  ai_usage_limit: string;
   auto_cleanup_enabled: boolean;
   max_cache_size_mb: number;
   max_article_age_days: number;
@@ -25,6 +28,7 @@ export interface SettingsData {
   theme: string;
   last_article_update: string;
   show_hidden_articles: boolean;
+  hover_mark_as_read: boolean;
   default_view_mode: string;
   startup_on_boot: boolean;
   close_to_tray: boolean;

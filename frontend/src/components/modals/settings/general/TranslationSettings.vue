@@ -117,7 +117,8 @@ const emit = defineEmits<{
           <PhKey :size="20" class="text-text-secondary mt-0.5 shrink-0 sm:w-6 sm:h-6" />
           <div class="flex-1 min-w-0">
             <div class="font-medium mb-0 sm:mb-1 text-sm">
-              {{ t('deeplApiKey') }} <span class="text-red-500">*</span>
+              {{ t('deeplApiKey') }}
+              <span v-if="!props.settings.deepl_endpoint?.trim()" class="text-red-500">*</span>
             </div>
             <div class="text-xs text-text-secondary hidden sm:block">
               {{ t('deeplApiKeyDesc') || 'Enter your DeepL API key' }}
@@ -132,7 +133,8 @@ const emit = defineEmits<{
             'input-field w-32 sm:w-48 text-xs sm:text-sm',
             props.settings.translation_enabled &&
             props.settings.translation_provider === 'deepl' &&
-            !props.settings.deepl_api_key?.trim()
+            !props.settings.deepl_api_key?.trim() &&
+            !props.settings.deepl_endpoint?.trim()
               ? 'border-red-500'
               : '',
           ]"
@@ -141,6 +143,32 @@ const emit = defineEmits<{
               emit('update:settings', {
                 ...props.settings,
                 deepl_api_key: (e.target as HTMLInputElement).value,
+              })
+          "
+        />
+      </div>
+
+      <!-- DeepL Custom Endpoint (deeplx) -->
+      <div v-if="props.settings.translation_provider === 'deepl'" class="sub-setting-item">
+        <div class="flex-1 flex items-center sm:items-start gap-2 sm:gap-3 min-w-0">
+          <PhLink :size="20" class="text-text-secondary mt-0.5 shrink-0 sm:w-6 sm:h-6" />
+          <div class="flex-1 min-w-0">
+            <div class="font-medium mb-0 sm:mb-1 text-sm">{{ t('deeplEndpoint') }}</div>
+            <div class="text-xs text-text-secondary hidden sm:block">
+              {{ t('deeplEndpointDesc') }}
+            </div>
+          </div>
+        </div>
+        <input
+          :value="props.settings.deepl_endpoint"
+          type="text"
+          :placeholder="t('deeplEndpointPlaceholder')"
+          class="input-field w-32 sm:w-48 text-xs sm:text-sm"
+          @input="
+            (e) =>
+              emit('update:settings', {
+                ...props.settings,
+                deepl_endpoint: (e.target as HTMLInputElement).value,
               })
           "
         />

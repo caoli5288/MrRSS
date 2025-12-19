@@ -61,6 +61,7 @@ func (t *DynamicTranslator) getTranslator() (Translator, error) {
 	switch provider {
 	case "deepl":
 		apiKey, _ = t.settings.GetEncryptedSetting("deepl_api_key")
+		endpoint, _ = t.settings.GetSetting("deepl_endpoint")
 	case "baidu":
 		appID, _ = t.settings.GetSetting("baidu_app_id")
 		secretKey, _ = t.settings.GetEncryptedSetting("baidu_secret_key")
@@ -96,10 +97,15 @@ func (t *DynamicTranslator) getTranslator() (Translator, error) {
 	case "google":
 		translator = NewGoogleFreeTranslator()
 	case "deepl":
-		if apiKey == "" {
-			return nil, fmt.Errorf("DeepL API key is required")
+		// For deeplx self-hosted, endpoint is required but API key is optional
+		if endpoint == "" && apiKey == "" {
+			return nil, fmt.Errorf("DeepL API key is required (or provide a custom endpoint for deeplx)")
 		}
-		translator = NewDeepLTranslator(apiKey)
+		if endpoint != "" {
+			translator = NewDeepLTranslatorWithEndpoint(apiKey, endpoint)
+		} else {
+			translator = NewDeepLTranslator(apiKey)
+		}
 	case "baidu":
 		if appID == "" || secretKey == "" {
 			return nil, fmt.Errorf("Baidu App ID and Secret Key are required")

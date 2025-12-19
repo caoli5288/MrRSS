@@ -98,8 +98,9 @@ func (s *AISummarizer) Summarize(text string, length SummaryLength) (SummaryResu
 	if err != nil {
 		return SummaryResult{}, fmt.Errorf("invalid API endpoint URL: %w", err)
 	}
-	if parsedURL.Scheme != "https" {
-		return SummaryResult{}, fmt.Errorf("API endpoint must use HTTPS for security")
+	// Allow HTTP for local endpoints (localhost, 127.0.0.1, etc.) for local LLM support (e.g., Ollama)
+	if parsedURL.Scheme != "https" && !isLocalEndpoint(parsedURL.Host) {
+		return SummaryResult{}, fmt.Errorf("API endpoint must use HTTPS for security (HTTP allowed only for localhost)")
 	}
 
 	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonBody))
@@ -156,4 +157,24 @@ func (s *AISummarizer) Summarize(text string, length SummaryLength) (SummaryResu
 	}
 
 	return SummaryResult{}, fmt.Errorf("no summary found in ai response")
+}
+
+// isLocalEndpoint checks if a host is a local endpoint (localhost, 127.0.0.1, etc.)
+// This allows using HTTP for local LLM services like Ollama
+func isLocalEndpoint(host string) bool {
+	// Remove port if present
+	if idx := strings.LastIndex(host, ":"); idx != -1 {
+		// Handle IPv6 addresses like [::1]:8080
+		if !strings.Contains(host[idx:], "]") {
+			host = host[:idx]
+		}
+	}
+	// Remove brackets from IPv6 addresses
+	host = strings.Trim(host, "[]")
+
+	return host == "localhost" ||
+		host == "127.0.0.1" ||
+		host == "::1" ||
+		strings.HasPrefix(host, "127.") ||
+		host == "0.0.0.0"
 }

@@ -196,6 +196,9 @@ const en: TranslationMessages = {
   deeplApiKey: 'DeepL API Key',
   deeplApiKeyDesc: 'Enter your DeepL API key for translation',
   deeplApiKeyPlaceholder: 'Enter your DeepL API key',
+  deeplEndpoint: 'Custom Endpoint (deeplx)',
+  deeplEndpointDesc: 'Self-hosted deeplx service URL (leave empty for official DeepL API)',
+  deeplEndpointPlaceholder: 'http://localhost:1188',
   baiduTranslate: 'Baidu Translate',
   baiduAppId: 'Baidu App ID',
   baiduAppIdDesc: 'Enter your Baidu Translate App ID',
@@ -208,7 +211,8 @@ const en: TranslationMessages = {
   aiApiKeyDesc: 'Enter your AI service API key (OpenAI, Claude, etc.)',
   aiApiKeyPlaceholder: 'Enter your API key',
   aiEndpoint: 'API Endpoint',
-  aiEndpointDesc: 'API endpoint URL (leave empty for OpenAI default)',
+  aiEndpointDesc:
+    'API endpoint URL (leave empty for OpenAI default). Local endpoints (localhost, 127.0.0.1) can use HTTP.',
   aiEndpointPlaceholder: 'https://api.openai.com/v1',
   aiModel: 'Model Name',
   aiModelDesc: 'AI model to use for translation',
@@ -217,10 +221,21 @@ const en: TranslationMessages = {
   aiSystemPromptDesc: 'Custom system prompt for AI translation',
   aiSystemPromptPlaceholder:
     'Default: You are a translator. Translate the given text accurately. Output ONLY the translated text, nothing else.',
+  aiUsage: 'AI Usage',
+  aiUsageTokens: 'Tokens Used',
+  aiUsageTokensDesc: 'Total AI tokens consumed for translation and summarization',
+  aiUsageLimit: 'Usage Limit',
+  aiUsageLimitDesc:
+    'Maximum tokens allowed (0 = unlimited). When reached, falls back to free alternatives.',
+  aiUsageLimitPlaceholder: '0',
+  aiUsageReset: 'Reset Usage',
   targetLanguage: 'Target Language',
   targetLanguageDesc: 'Language to translate article titles to',
   language: 'Language',
   languageDesc: 'Select interface language',
+  hoverMarkAsRead: 'Hover to Mark as Read',
+  hoverMarkAsReadDesc:
+    'Automatically mark articles as read when hovering over them (does not apply to Read Later articles)',
 
   // Summary
   summary: 'Summary',

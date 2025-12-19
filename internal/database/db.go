@@ -69,9 +69,9 @@ func (db *DB) Init() error {
 		// Insert default settings if they don't exist (using centralized defaults from config)
 		settingsKeys := []string{
 			"update_interval", "refresh_mode", "translation_enabled", "target_language", "translation_provider",
-			"deepl_api_key", "baidu_app_id", "baidu_secret_key", "ai_api_key", "ai_endpoint", "ai_model",
-			"ai_system_prompt", "auto_cleanup_enabled", "max_cache_size_mb", "max_article_age_days", "language", "theme",
-			"last_article_update", "show_hidden_articles", "default_view_mode", "summary_enabled", "summary_length",
+			"deepl_api_key", "deepl_endpoint", "baidu_app_id", "baidu_secret_key", "ai_api_key", "ai_endpoint", "ai_model",
+			"ai_system_prompt", "ai_usage_tokens", "ai_usage_limit", "auto_cleanup_enabled", "max_cache_size_mb", "max_article_age_days", "language", "theme",
+			"last_article_update", "show_hidden_articles", "hover_mark_as_read", "default_view_mode", "summary_enabled", "summary_length",
 			"summary_provider", "summary_ai_api_key", "summary_ai_endpoint", "summary_ai_model", "summary_ai_system_prompt",
 			"media_cache_enabled", "media_cache_max_size_mb", "media_cache_max_age_days",
 			"proxy_enabled", "proxy_type", "proxy_host", "proxy_port", "proxy_username", "proxy_password",

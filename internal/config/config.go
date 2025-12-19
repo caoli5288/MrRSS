@@ -22,16 +22,20 @@ type Defaults struct {
 	StartupOnBoot            bool   `json:"startup_on_boot"`
 	CloseToTray              bool   `json:"close_to_tray"`
 	ShowHiddenArticles       bool   `json:"show_hidden_articles"`
+	HoverMarkAsRead          bool   `json:"hover_mark_as_read"`
 	TranslationEnabled       bool   `json:"translation_enabled"`
 	TargetLanguage           string `json:"target_language"`
 	TranslationProvider      string `json:"translation_provider"`
 	DeepLAPIKey              string `json:"deepl_api_key"`
+	DeepLEndpoint            string `json:"deepl_endpoint"`
 	BaiduAppID               string `json:"baidu_app_id"`
 	BaiduSecretKey           string `json:"baidu_secret_key"`
 	AIAPIKey                 string `json:"ai_api_key"`
 	AIEndpoint               string `json:"ai_endpoint"`
 	AIModel                  string `json:"ai_model"`
 	AISystemPrompt           string `json:"ai_system_prompt"`
+	AIUsageTokens            string `json:"ai_usage_tokens"`
+	AIUsageLimit             string `json:"ai_usage_limit"`
 	SummaryEnabled           bool   `json:"summary_enabled"`
 	SummaryLength            string `json:"summary_length"`
 	SummaryProvider          string `json:"summary_provider"`
@@ -96,6 +100,8 @@ func GetString(key string) string {
 		return strconv.FormatBool(defaults.CloseToTray)
 	case "show_hidden_articles":
 		return strconv.FormatBool(defaults.ShowHiddenArticles)
+	case "hover_mark_as_read":
+		return strconv.FormatBool(defaults.HoverMarkAsRead)
 	case "translation_enabled":
 		return strconv.FormatBool(defaults.TranslationEnabled)
 	case "target_language":
@@ -104,6 +110,8 @@ func GetString(key string) string {
 		return defaults.TranslationProvider
 	case "deepl_api_key":
 		return defaults.DeepLAPIKey
+	case "deepl_endpoint":
+		return defaults.DeepLEndpoint
 	case "baidu_app_id":
 		return defaults.BaiduAppID
 	case "baidu_secret_key":
@@ -116,6 +124,10 @@ func GetString(key string) string {
 		return defaults.AIModel
 	case "ai_system_prompt":
 		return defaults.AISystemPrompt
+	case "ai_usage_tokens":
+		return defaults.AIUsageTokens
+	case "ai_usage_limit":
+		return defaults.AIUsageLimit
 	case "summary_enabled":
 		return strconv.FormatBool(defaults.SummaryEnabled)
 	case "summary_length":
