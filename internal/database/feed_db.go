@@ -205,8 +205,9 @@ func (db *DB) UpdateFeedPosition(id int64, category string, position int) error 
 }
 
 // ReorderFeed reorders feeds within a category after moving a feed.
+// The newPosition parameter is the visual index (0-based) where the feed should appear.
 // This adjusts the positions of other feeds to maintain consistent ordering.
-func (db *DB) ReorderFeed(feedID int64, newCategory string, newPosition int) error {
+func (db *DB) ReorderFeed(feedID int64, newCategory string, newIndex int) error {
 	db.WaitForReady()
 
 	// Get the feed being moved
@@ -217,30 +218,69 @@ func (db *DB) ReorderFeed(feedID int64, newCategory string, newPosition int) err
 		return err
 	}
 
-	// Update the moved feed to new position first
-	_, err = db.Exec("UPDATE feeds SET category = ?, position = ? WHERE id = ?", newCategory, newPosition, feedID)
+	// Get all feeds in the target category, ordered by position
+	rows, err := db.Query("SELECT id, COALESCE(position, 0) FROM feeds WHERE category = ? ORDER BY position ASC, id ASC", newCategory)
 	if err != nil {
 		return err
+	}
+	defer rows.Close()
+
+	type feedPosition struct {
+		id       int64
+		position int
+	}
+	var feeds []feedPosition
+	for rows.Next() {
+		var f feedPosition
+		if err := rows.Scan(&f.id, &f.position); err != nil {
+			return err
+		}
+		feeds = append(feeds, f)
+	}
+
+	// Find the old index of the feed being moved
+	oldIndex := -1
+	for i, f := range feeds {
+		if f.id == feedID {
+			oldIndex = i
+			break
+		}
 	}
 
 	// If moving within the same category
 	if oldCategory == newCategory {
-		if oldPosition < newPosition {
-			// Moving down: decrement positions of feeds between old and new position
-			_, err = db.Exec(`
-				UPDATE feeds SET position = position - 1
-				WHERE category = ? AND position > ? AND position <= ? AND id != ?
-			`, newCategory, oldPosition, newPosition, feedID)
-		} else if oldPosition > newPosition {
-			// Moving up: increment positions of feeds between new and old position
-			_, err = db.Exec(`
-				UPDATE feeds SET position = position + 1
-				WHERE category = ? AND position >= ? AND position < ? AND id != ?
-			`, newCategory, newPosition, oldPosition, feedID)
+		// Adjust the newIndex if the feed is being moved within the same category
+		// and the new index accounts for the feed being removed (which the frontend does)
+		// No additional adjustment needed here
+
+		// Remove the feed from its old position and insert at the new position
+		var updatedFeeds []feedPosition
+		for i, f := range feeds {
+			if i != oldIndex {
+				updatedFeeds = append(updatedFeeds, f)
+			}
+		}
+
+		// Insert at the new position
+		if newIndex > len(updatedFeeds) {
+			newIndex = len(updatedFeeds)
+		}
+
+		var finalFeeds []feedPosition
+		finalFeeds = append(finalFeeds, updatedFeeds[:newIndex]...)
+		finalFeeds = append(finalFeeds, feedPosition{id: feedID})
+		finalFeeds = append(finalFeeds, updatedFeeds[newIndex:]...)
+
+		// Update all positions in the category
+		for i, f := range finalFeeds {
+			_, err = db.Exec("UPDATE feeds SET position = ? WHERE id = ?", i, f.id)
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		// Moving to different category
-		// Decrement positions in old category after old position
+		// 1. Shift feeds in old category after old position up by 1
 		_, err = db.Exec(`
 			UPDATE feeds SET position = position - 1
 			WHERE category = ? AND position > ?
@@ -249,14 +289,35 @@ func (db *DB) ReorderFeed(feedID int64, newCategory string, newPosition int) err
 			return err
 		}
 
-		// Increment positions in new category at and after new position
-		_, err = db.Exec(`
-			UPDATE feeds SET position = position + 1
-			WHERE category = ? AND position >= ? AND id != ?
-		`, newCategory, newPosition, feedID)
+		// 2. Shift feeds in new category at and after new index down by 1
+		// First, get the feeds in the new category again (without the moved feed)
+		var newCategoryFeeds []feedPosition
+		for _, f := range feeds {
+			if f.id != feedID {
+				newCategoryFeeds = append(newCategoryFeeds, f)
+			}
+		}
+
+		// Insert the moved feed at the new index
+		if newIndex > len(newCategoryFeeds) {
+			newIndex = len(newCategoryFeeds)
+		}
+
+		var finalFeeds []feedPosition
+		finalFeeds = append(finalFeeds, newCategoryFeeds[:newIndex]...)
+		finalFeeds = append(finalFeeds, feedPosition{id: feedID})
+		finalFeeds = append(finalFeeds, newCategoryFeeds[newIndex:]...)
+
+		// Update all feeds in the new category
+		for i, f := range finalFeeds {
+			_, err = db.Exec("UPDATE feeds SET position = ?, category = ? WHERE id = ?", i, newCategory, f.id)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
-	return err
+	return nil
 }
 
 // GetNextPositionInCategory returns the next available position in a category.

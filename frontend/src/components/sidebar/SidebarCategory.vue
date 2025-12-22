@@ -16,6 +16,7 @@ interface Props {
   isDragOver?: boolean;
   isEditMode?: boolean;
   dropPreview?: DropPreview;
+  draggingFeedId?: number | null;
 }
 
 defineProps<Props>();
@@ -96,41 +97,45 @@ function handleCategoryDragOver(event: DragEvent) {
       @drop.prevent="handleDrop"
     >
       <template v-for="feed in feeds" :key="feed.id">
-        <!-- Drop indicator above this feed -->
-        <div
-          v-if="
-            isDragOver &&
-            dropPreview &&
-            dropPreview.targetFeedId === feed.id &&
-            dropPreview.beforeTarget
-          "
-          class="drop-indicator"
-        ></div>
-        <SidebarFeed
-          :feed="feed"
-          :is-active="currentFeedId === feed.id"
-          :unread-count="feedUnreadCounts[feed.id] || 0"
-          :is-edit-mode="isEditMode"
-          @click="emit('selectFeed', feed.id)"
-          @contextmenu="(e) => emit('feedContextMenu', e, feed)"
-          @dragstart="(e) => emit('dragstart', feed.id, e)"
-          @dragend="emit('dragend')"
-        />
-        <!-- Drop indicator below this feed -->
-        <div
-          v-if="
-            isDragOver &&
-            dropPreview &&
-            dropPreview.targetFeedId === feed.id &&
-            !dropPreview.beforeTarget
-          "
-          class="drop-indicator"
-        ></div>
+        <div class="feed-wrapper">
+          <!-- Drop indicator above this feed -->
+          <div
+            v-if="
+              isDragOver &&
+              dropPreview &&
+              dropPreview.targetFeedId === feed.id &&
+              dropPreview.beforeTarget
+            "
+            class="drop-indicator"
+            style="top: -1.5px"
+          ></div>
+          <SidebarFeed
+            :feed="feed"
+            :is-active="currentFeedId === feed.id"
+            :unread-count="feedUnreadCounts[feed.id] || 0"
+            :is-edit-mode="isEditMode"
+            @click="emit('selectFeed', feed.id)"
+            @contextmenu="(e) => emit('feedContextMenu', e, feed)"
+            @dragstart="(e) => emit('dragstart', feed.id, e)"
+            @dragend="emit('dragend')"
+          />
+          <!-- Drop indicator below this feed -->
+          <div
+            v-if="
+              isDragOver &&
+              dropPreview &&
+              dropPreview.targetFeedId === feed.id &&
+              !dropPreview.beforeTarget
+            "
+            class="drop-indicator"
+            style="bottom: -1.5px"
+          ></div>
+        </div>
       </template>
       <!-- Drop indicator at the end when dragging over category but not over a specific feed -->
       <div
         v-if="isDragOver && feeds.length > 0 && dropPreview && dropPreview.targetFeedId === null"
-        class="drop-indicator"
+        class="drop-indicator end-indicator"
       ></div>
     </div>
   </div>
@@ -148,6 +153,12 @@ function handleCategoryDragOver(event: DragEvent) {
   padding-left: calc(0.5rem + 0.375rem);
   padding-right: calc(0.75rem + 0.375rem);
 }
+
+/* Special styling for category header when its container is a drag target */
+.category-container.drag-over .category-header {
+  @apply text-accent font-bold;
+  background-color: transparent;
+}
 @media (min-width: 640px) {
   .category-header {
     top: -0.5rem; /* matches container's sm:p-2 */
@@ -161,22 +172,41 @@ function handleCategoryDragOver(event: DragEvent) {
   @apply bg-bg-tertiary text-accent;
 }
 
+/* Container drag-over styling */
 .category-container.drag-over {
   @apply rounded-lg;
-  border: 1px solid var(--color-accent, #6366f1);
-  background-color: var(--color-bg-tertiary, rgba(99, 102, 241, 0.05));
+  outline: 2px solid var(--accent-color, #007bff);
+  outline-offset: -2px;
+  background-color: var(--bg-tertiary, rgba(0, 123, 255, 0.05));
 }
 
 .feeds-list {
   position: relative;
 }
 
+/* Wrapper to position drop indicators relative to each feed */
+.feed-wrapper {
+  position: relative;
+}
+
+/* Drop indicator positioned absolutely to avoid layout shift */
 .drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, var(--color-accent, #6366f1), transparent);
-  margin: 2px 0;
+  background: linear-gradient(90deg, transparent, var(--accent-color, #007bff), transparent);
   border-radius: 1.5px;
   animation: pulse-indicator 1.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* End indicator positioned relative to feeds list */
+.drop-indicator.end-indicator {
+  position: relative;
+  margin-top: 2px;
+  margin-bottom: 2px;
 }
 
 @keyframes pulse-indicator {

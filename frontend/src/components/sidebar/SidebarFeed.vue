@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { PhWarningCircle, PhEyeSlash, PhImage, PhDotsSixVertical } from '@phosphor-icons/vue';
 import type { Feed } from '@/types/models';
 import { useI18n } from 'vue-i18n';
@@ -10,7 +9,6 @@ interface Props {
   feed: Feed;
   isActive: boolean;
   unreadCount: number;
-  isDragging?: boolean;
   isEditMode?: boolean;
 }
 
@@ -23,8 +21,6 @@ const emit = defineEmits<{
   dragend: [];
 }>();
 
-const isDraggingSelf = ref(false);
-
 function getFavicon(url: string): string {
   try {
     return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
@@ -34,19 +30,17 @@ function getFavicon(url: string): string {
 }
 
 function handleDragStart(event: Event) {
-  isDraggingSelf.value = true;
   emit('dragstart', event);
 }
 
 function handleDragEnd() {
-  isDraggingSelf.value = false;
   emit('dragend');
 }
 </script>
 
 <template>
   <div
-    :class="['feed-item', isActive ? 'active' : '', isDraggingSelf ? 'dragging' : '']"
+    :class="['feed-item', isActive ? 'active' : '']"
     :data-feed-id="feed.id"
     @click="emit('click')"
     @contextmenu="(e) => emit('contextmenu', e)"
@@ -102,9 +96,15 @@ function handleDragEnd() {
 .feed-item.active {
   @apply bg-bg-tertiary text-accent font-medium;
 }
+
+/* Dragging state styles */
+.feed-item[draggable='true']:active {
+  opacity: 0.8;
+}
+/* Drag ghost image styling - applied during drag */
 .feed-item.dragging {
   opacity: 0.5;
-  transform: scale(0.98);
+  background-color: transparent;
 }
 
 .drag-handle {

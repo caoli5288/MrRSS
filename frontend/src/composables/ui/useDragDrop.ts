@@ -18,11 +18,22 @@ export function useDragDrop() {
       dragEvent.dataTransfer.effectAllowed = 'move';
       dragEvent.dataTransfer.setData('text/plain', String(feedId));
     }
+    // Add dragging class to the source element for visual feedback
+    if (dragEvent.target instanceof HTMLElement) {
+      const feedItem = dragEvent.target.closest('.feed-item');
+      if (feedItem) {
+        feedItem.classList.add('dragging');
+      }
+    }
     console.log('[onDragStart] Started dragging feed:', feedId);
   }
 
   function onDragEnd() {
     console.log('[onDragEnd] Ended dragging feed:', draggingFeedId.value);
+    // Remove dragging class from all feed items
+    document.querySelectorAll('.feed-item.dragging').forEach((el) => {
+      el.classList.remove('dragging');
+    });
     draggingFeedId.value = null;
     dragOverCategory.value = null;
     dropPreview.value = { targetFeedId: null, beforeTarget: true };
@@ -62,6 +73,16 @@ export function useDragDrop() {
         const relativeY = event.clientY - rect.top;
         const threshold = rect.height / 2;
         beforeTarget = relativeY < threshold;
+
+        // Debounce: only update if target or position changed significantly
+        const newPreview = { targetFeedId, beforeTarget };
+        if (
+          dropPreview.value.targetFeedId !== newPreview.targetFeedId ||
+          dropPreview.value.beforeTarget !== newPreview.beforeTarget
+        ) {
+          dropPreview.value = newPreview;
+        }
+
         console.log(
           '[onDragOver] category:',
           category,
@@ -79,9 +100,12 @@ export function useDragDrop() {
       }
     } else {
       console.log('[onDragOver] No specific target, dropping at end. targetFeedId:', targetFeedId);
+      // Only update if different
+      if (dropPreview.value.targetFeedId !== null) {
+        dropPreview.value = { targetFeedId: null, beforeTarget: true };
+      }
     }
 
-    dropPreview.value = { targetFeedId, beforeTarget };
     console.log('[onDragOver] Updated dropPreview:', dropPreview.value);
   }
 
@@ -114,40 +138,48 @@ export function useDragDrop() {
     // Sort feeds by position to get correct order
     const sortedFeeds = [...feeds].sort((a, b) => (a.position || 0) - (b.position || 0));
 
-    // Calculate new position - simplified approach
-    let newPosition = 0;
+    // Find the dragging feed's current index (0-based)
+    const draggingIndex = sortedFeeds.findIndex((f) => f.id === feedId);
+
+    // Calculate the visual target index (0-based)
+    // This is where the feed should appear in the sorted list
+    let targetIndex = 0;
 
     if (targetFeedId !== null) {
-      // Find target feed in the sorted list
-      const targetIndex = sortedFeeds.findIndex((f) => f.id === targetFeedId);
-
-      if (targetIndex !== -1) {
-        const targetFeed = sortedFeeds[targetIndex];
-        const targetPosition = targetFeed.position ?? targetIndex;
-
-        // Simply use the target's position (before) or position+1 (after)
-        // The backend ReorderFeed function will handle shifting other feeds correctly
-        newPosition = beforeTarget ? targetPosition : targetPosition + 1;
+      const targetIdx = sortedFeeds.findIndex((f) => f.id === targetFeedId);
+      if (targetIdx !== -1) {
+        if (beforeTarget) {
+          // Insert before the target feed
+          targetIndex = targetIdx;
+        } else {
+          // Insert after the target feed
+          targetIndex = targetIdx + 1;
+        }
       } else {
-        // Target feed not found in this category's list (might be in different category)
-        // Append to end
-        const maxPos =
-          sortedFeeds.length > 0 ? Math.max(0, ...sortedFeeds.map((f) => f.position || 0)) : -1;
-        newPosition = maxPos + 1;
+        // Target feed not found, append to end
+        targetIndex = sortedFeeds.length;
       }
     } else {
-      // No specific feed target (dropping on empty space or category), append to end
-      const maxPos =
-        sortedFeeds.length > 0 ? Math.max(0, ...sortedFeeds.map((f) => f.position || 0)) : -1;
-      newPosition = maxPos + 1;
+      // No specific target, append to end
+      targetIndex = sortedFeeds.length;
+    }
+
+    // Calculate the final position index considering the dragging feed will be removed
+    let newPosition = targetIndex;
+    if (draggingIndex !== -1 && targetIndex > draggingIndex) {
+      // Moving forward: after removing the dragging feed, indices shift down by 1
+      newPosition = targetIndex - 1;
     }
 
     console.log('[onDrop] Calculated position:', {
       feedId,
       targetCategory,
       newPosition,
+      draggingIndex,
+      targetIndex,
       targetFeedId,
       beforeTarget,
+      feedsInCategory: sortedFeeds.length,
     });
 
     try {
