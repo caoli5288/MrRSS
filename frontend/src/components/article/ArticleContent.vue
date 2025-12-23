@@ -45,7 +45,16 @@ const props = withDefaults(defineProps<Props>(), {
   showContent: true,
 });
 
+const emit = defineEmits<{
+  retryLoadContent: [];
+}>();
+
 const { t } = useI18n();
+
+// Handle retry load content
+function handleRetryLoad() {
+  emit('retryLoadContent');
+}
 
 // Chat state
 const { settings: appSettings, fetchSettings } = useSettings();
@@ -585,6 +594,8 @@ watch(
         :article-content="displayContent"
         :is-translating-content="isTranslatingContent"
         :has-media-content="!!(article.audio_url || article.video_url)"
+        :is-loading-content="isLoadingContent"
+        @retry-load="handleRetryLoad"
       />
 
       <!-- Full-text fetch button -->
