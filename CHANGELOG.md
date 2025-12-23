@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Supported AI setting tests in settings page to verify connectivity and credentials. (#297)
+- Supported fetching feeds which require JavaScript rendering using headless browser. (#298)
 
 ### Changed
 
 - AI generated summaries are now stored in the database to avoid redundant requests and improve performance. (#295)
+- Reduce the frequency of automatic record of window status to improve performance.
 
 ### Fixed
 
