@@ -19,6 +19,7 @@ export interface SettingsData {
   baidu_app_id: string;
   baidu_secret_key: string;
   close_to_tray: boolean;
+  custom_css_file: string;
   deepl_api_key: string;
   deepl_endpoint: string;
   default_view_mode: string;

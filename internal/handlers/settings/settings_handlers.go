@@ -28,6 +28,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 		baiduAppId, _ := h.DB.GetSetting("baidu_app_id")
 		baiduSecretKey, _ := h.DB.GetEncryptedSetting("baidu_secret_key")
 		closeToTray, _ := h.DB.GetSetting("close_to_tray")
+		customCssFile, _ := h.DB.GetSetting("custom_css_file")
 		deeplApiKey, _ := h.DB.GetEncryptedSetting("deepl_api_key")
 		deeplEndpoint, _ := h.DB.GetSetting("deepl_endpoint")
 		defaultViewMode, _ := h.DB.GetSetting("default_view_mode")
@@ -95,6 +96,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			"baidu_app_id":                baiduAppId,
 			"baidu_secret_key":            baiduSecretKey,
 			"close_to_tray":               closeToTray,
+			"custom_css_file":             customCssFile,
 			"deepl_api_key":               deeplApiKey,
 			"deepl_endpoint":              deeplEndpoint,
 			"default_view_mode":           defaultViewMode,
@@ -164,6 +166,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			BaiduAppId               string `json:"baidu_app_id"`
 			BaiduSecretKey           string `json:"baidu_secret_key"`
 			CloseToTray              string `json:"close_to_tray"`
+			CustomCssFile            string `json:"custom_css_file"`
 			DeeplAPIKey              string `json:"deepl_api_key"`
 			DeeplEndpoint            string `json:"deepl_endpoint"`
 			DefaultViewMode          string `json:"default_view_mode"`
@@ -279,6 +282,10 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 
 		if req.CloseToTray != "" {
 			h.DB.SetSetting("close_to_tray", req.CloseToTray)
+		}
+
+		if req.CustomCssFile != "" {
+			h.DB.SetSetting("custom_css_file", req.CustomCssFile)
 		}
 
 		if err := h.DB.SetEncryptedSetting("deepl_api_key", req.DeeplAPIKey); err != nil {

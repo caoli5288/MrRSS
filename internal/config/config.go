@@ -32,6 +32,7 @@ type Defaults struct {
 	BaiduAppId               string `json:"baidu_app_id"`
 	BaiduSecretKey           string `json:"baidu_secret_key"`
 	CloseToTray              bool   `json:"close_to_tray"`
+	CustomCssFile            string `json:"custom_css_file"`
 	DeeplAPIKey              string `json:"deepl_api_key"`
 	DeeplEndpoint            string `json:"deepl_endpoint"`
 	DefaultViewMode          string `json:"default_view_mode"`
@@ -130,6 +131,8 @@ func GetString(key string) string {
 		return defaults.BaiduSecretKey
 	case "close_to_tray":
 		return strconv.FormatBool(defaults.CloseToTray)
+	case "custom_css_file":
+		return defaults.CustomCssFile
 	case "deepl_api_key":
 		return defaults.DeeplAPIKey
 	case "deepl_endpoint":
