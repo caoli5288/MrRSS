@@ -64,7 +64,6 @@ function formatLastUpdate(timestamp: string): string {
         <option value="fixed">{{ t('fixedInterval') }}</option>
         <option value="intelligent">{{ t('intelligentInterval') }}</option>
       </select>
-      <span class="text-xs sm:text-sm text-text-secondary">{{ t('minutes') }}</span>
     </div>
 
     <!-- Auto Update Interval (shown when fixed mode is selected) -->
@@ -84,19 +83,22 @@ function formatLastUpdate(timestamp: string): string {
             </div>
           </div>
         </div>
-        <input
-          :value="props.settings.update_interval"
-          type="number"
-          min="1"
-          class="input-field w-16 sm:w-20 text-center text-xs sm:text-sm"
-          @input="
-            (e) =>
-              emit('update:settings', {
-                ...props.settings,
-                update_interval: parseInt((e.target as HTMLInputElement).value) || 30,
-              })
-          "
-        />
+        <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+          <input
+            :value="props.settings.update_interval"
+            type="number"
+            min="1"
+            class="input-field w-16 sm:w-20 text-center text-xs sm:text-sm"
+            @input="
+              (e) =>
+                emit('update:settings', {
+                  ...props.settings,
+                  update_interval: parseInt((e.target as HTMLInputElement).value) || 30,
+                })
+            "
+          />
+          <span class="text-xs sm:text-sm text-text-secondary">{{ t('minutes') }}</span>
+        </div>
       </div>
     </div>
   </div>
